@@ -36,7 +36,7 @@ class AppTest {
         when(client.send(any(), any())).thenReturn(httpResponse);
         App app = new App(client);
         // Act
-        String response = app.getFeedItems("2021-01-01", "Mock token");
+        String response = app.getRawFeedItems("2021-01-01", "Mock token");
         // Assert
         assertEquals(mockAccountsResponse, response);
     }

@@ -7,42 +7,59 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
-
-import com.jayway.jsonpath.JsonPath;
-
 import java.net.URI;
 
+import com.jayway.jsonpath.JsonPath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.starling.models.Week;
+
 public class App {
+    private static final Logger LOG = LoggerFactory.getLogger(App.class);
     private HttpClient client;
 
     public App(HttpClient client) {
         this.client = client;
     }
 
-    public String getFeedItems(String weekEndInputString, String bearerToken) {
-        LocalDate weekEnd = LocalDate.parse(weekEndInputString);
-        LocalDate weekStart = weekEnd.minusDays(7);
-        String weekStartRequestString = weekStart.toString() + "T00:00:00.000Z";
-        String weekEndRequestString = weekEnd.toString() + "T23:59:59.999Z";
+    public String getRawFeedItems(String weekStartInputString, String bearerToken) {
+        Week week = this.getWeekFromStartDate(weekStartInputString);
+
         String accountId = this.getPrimaryAccountId(bearerToken);
-        String requestString = "https://api-sandbox.starlingbank.com/api/v2/feed/account/"
-                + accountId
-                + "/settled-transactions-between?minTransactionTimestamp="
-                + weekStartRequestString
-                + "&maxTransactionTimestamp="
-                + weekEndRequestString;
-        System.out.println("Request string: " + requestString);
+
+        String requestString = String.format(
+                Constants.FEED_REQUEST_STRING_FORMAT,
+                Constants.STARLING_API_URL,
+                accountId,
+                week.start,
+                week.end);
+
+        System.out.println(requestString);
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(requestString))
                 .header("Authorization", "Bearer " + bearerToken)
                 .build();
+
         try {
             HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
             return response.body();
         } catch (Exception exception) {
-            exception.printStackTrace();
+            LOG.error("An error occurred: ", exception);
             return null;
         }
+    }
+
+    private Week getWeekFromStartDate(String startDate) {
+        LocalDate weekStart = LocalDate.parse(startDate);
+        LocalDate weekEnd = weekStart.plusDays(7);
+
+        String weekStartRequestString = weekStart.toString() + "T00:00:00.000Z";
+        String weekEndRequestString = weekEnd.toString() + "T00:00:00.000Z";
+
+        Week week = new Week(weekStartRequestString, weekEndRequestString);
+        return week;
     }
 
     public String getPrimaryAccountId(String bearerToken) {
@@ -53,20 +70,21 @@ public class App {
 
     private String getAccounts(String bearerToken) {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api-sandbox.starlingbank.com/api/v2/accounts"))
+                .uri(URI.create(Constants.STARLING_API_URL + "/accounts"))
                 .header("Authorization", "Bearer " + bearerToken)
                 .build();
         try {
             HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
             return response.body();
         } catch (Exception exception) {
-            exception.printStackTrace();
+            LOG.error("An error occurred: ", exception);
             return null;
         }
     }
 
     public static void main(String[] args) {
         if (args.length < 2) {
+            LOG.error("No arguments provided.");
             System.err.println("Please provide the week start and bearer token as a command line argument.");
             System.exit(1);
         }
@@ -77,7 +95,7 @@ public class App {
         String weekStart = args[0];
         String bearerToken = args[1];
 
-        String response = app.getFeedItems(weekStart, bearerToken);
+        String response = app.getRawFeedItems(weekStart, bearerToken);
         System.out.println(response);
     }
 }

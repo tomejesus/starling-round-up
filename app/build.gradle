@@ -20,14 +20,18 @@ dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
 
+    // Use Mockito for mocking in tests.
+    testImplementation 'org.mockito:mockito-core:4.0.0'
+
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:31.1-jre'
 
     // Use JsonPath for JSON parsing.
     implementation 'com.jayway.jsonpath:json-path:2.6.0'
 
-    // Use Mockito for mocking in tests.
-    testImplementation 'org.mockito:mockito-core:4.0.0'
+    // Use logback for logging.
+    implementation 'ch.qos.logback:logback-classic:1.2.6'
+    
 }
 
 application {
