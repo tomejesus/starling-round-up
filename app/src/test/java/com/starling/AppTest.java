@@ -26,4 +26,19 @@ class AppTest {
         assertEquals("MockAccountId", response);
     }
 
+    @Test
+    void testGetFeedItems() throws Exception {
+        // Arrange
+        HttpClient client = mock(HttpClient.class);
+        HttpResponse<Object> httpResponse = mock(HttpResponse.class);
+        String mockAccountsResponse = "{accounts:[{accountUid:MockAccountId}]}}";
+        when(httpResponse.body()).thenReturn(mockAccountsResponse);
+        when(client.send(any(), any())).thenReturn(httpResponse);
+        App app = new App(client);
+        // Act
+        String response = app.getFeedItems("2021-01-01", "Mock token");
+        // Assert
+        assertEquals(mockAccountsResponse, response);
+    }
+
 }

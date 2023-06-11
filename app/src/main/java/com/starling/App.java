@@ -6,6 +6,7 @@ package com.starling;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDate;
 
 import com.jayway.jsonpath.JsonPath;
 
@@ -16,6 +17,32 @@ public class App {
 
     public App(HttpClient client) {
         this.client = client;
+    }
+
+    public String getFeedItems(String weekEndInputString, String bearerToken) {
+        LocalDate weekEnd = LocalDate.parse(weekEndInputString);
+        LocalDate weekStart = weekEnd.minusDays(7);
+        String weekStartRequestString = weekStart.toString() + "T00:00:00.000Z";
+        String weekEndRequestString = weekEnd.toString() + "T23:59:59.999Z";
+        String accountId = this.getPrimaryAccountId(bearerToken);
+        String requestString = "https://api-sandbox.starlingbank.com/api/v2/feed/account/"
+                + accountId
+                + "/settled-transactions-between?minTransactionTimestamp="
+                + weekStartRequestString
+                + "&maxTransactionTimestamp="
+                + weekEndRequestString;
+        System.out.println("Request string: " + requestString);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(requestString))
+                .header("Authorization", "Bearer " + bearerToken)
+                .build();
+        try {
+            HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.body();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
     }
 
     public String getPrimaryAccountId(String bearerToken) {
@@ -39,14 +66,18 @@ public class App {
     }
 
     public static void main(String[] args) {
-        if (args.length < 1) {
-            System.err.println("Please provide the bearer token as a command line argument.");
+        if (args.length < 2) {
+            System.err.println("Please provide the week start and bearer token as a command line argument.");
             System.exit(1);
         }
+
         HttpClient client = HttpClient.newHttpClient();
         App app = new App(client);
-        String bearerToken = args[0];
-        String response = app.getPrimaryAccountId(bearerToken);
+
+        String weekStart = args[0];
+        String bearerToken = args[1];
+
+        String response = app.getFeedItems(weekStart, bearerToken);
         System.out.println(response);
     }
 }
