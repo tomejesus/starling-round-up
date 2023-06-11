@@ -6,6 +6,9 @@ package com.starling;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+
+import com.jayway.jsonpath.JsonPath;
+
 import java.net.URI;
 
 public class App {
@@ -15,7 +18,13 @@ public class App {
         this.client = client;
     }
 
-    public String getAccounts(String bearerToken) {
+    public String getPrimaryAccountId(String bearerToken) {
+        String response = this.getAccounts(bearerToken);
+        String accountId = JsonPath.read(response, "$.accounts[0].accountUid");
+        return accountId;
+    }
+
+    private String getAccounts(String bearerToken) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api-sandbox.starlingbank.com/api/v2/accounts"))
                 .header("Authorization", "Bearer " + bearerToken)
@@ -37,7 +46,7 @@ public class App {
         HttpClient client = HttpClient.newHttpClient();
         App app = new App(client);
         String bearerToken = args[0];
-        String response = app.getAccounts(bearerToken);
+        String response = app.getPrimaryAccountId(bearerToken);
         System.out.println(response);
     }
 }

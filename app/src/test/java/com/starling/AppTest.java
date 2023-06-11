@@ -11,17 +11,19 @@ import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 
 class AppTest {
+
     @Test
-    void testGetAccounts() throws Exception {
+    void testGetPrimaryAccountId() throws Exception {
         // Arrange
         HttpClient client = mock(HttpClient.class);
         HttpResponse<Object> httpResponse = mock(HttpResponse.class);
-        when(httpResponse.body()).thenReturn("Mock API response");
+        when(httpResponse.body()).thenReturn("{\"accounts\":[{\"accountUid\":\"MockAccountId\"}]}");
         when(client.send(any(), any())).thenReturn(httpResponse);
         App app = new App(client);
         // Act
-        String response = app.getAccounts("Mock token");
+        String response = app.getPrimaryAccountId("Mock token");
         // Assert
-        assertEquals("Mock API response", response);
+        assertEquals("MockAccountId", response);
     }
+
 }
