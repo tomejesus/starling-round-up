@@ -3,40 +3,34 @@
  */
 package com.starling;
 
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
+
+import com.starling.services.AccountService;
+
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import java.net.http.HttpClient;
-import java.net.http.HttpResponse;
 
 class AppTest {
 
     @Test
-    void testGetPrimaryAccountId() throws Exception {
-        // Arrange
-        HttpClient client = mock(HttpClient.class);
-        HttpResponse<Object> httpResponse = mock(HttpResponse.class);
-        when(httpResponse.body()).thenReturn("{\"accounts\":[{\"accountUid\":\"MockAccountId\"}]}");
-        when(client.send(any(), any())).thenReturn(httpResponse);
-        App app = new App(client);
-        // Act
-        String response = app.getPrimaryAccountId("Mock token");
-        // Assert
-        assertEquals("MockAccountId", response);
-    }
-
-    @Test
     void testGetFeedItems() throws Exception {
         // Arrange
+        AccountService accountService = mock(AccountService.class);
+        when(accountService.getPrimaryAccountId(any())).thenReturn("MockAccountId");
+        String mockAccountsResponse = "{\"feedItems\":[{\"feedItemUid\":\"feedItem1\", \"direction\":\"OUT\", \"amount\":{\"currency\":\"GBP\",\"minorUnits\":25}},{\"feedItemUid\":\"feedItem2\", \"direction\":\"IN\", \"amount\":{\"currency\":\"GBP\",\"minorUnits\":50}}]}";
         HttpClient client = mock(HttpClient.class);
         HttpResponse<Object> httpResponse = mock(HttpResponse.class);
-        String mockAccountsResponse = "{accounts:[{accountUid:MockAccountId}]}}";
         when(httpResponse.body()).thenReturn(mockAccountsResponse);
         when(client.send(any(), any())).thenReturn(httpResponse);
-        App app = new App(client);
+        App app = new App(client, accountService);
+
         // Act
         String response = app.getRawFeedItems("2021-01-01", "Mock token");
+
         // Assert
         assertEquals(mockAccountsResponse, response);
     }

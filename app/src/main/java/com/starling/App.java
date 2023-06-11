@@ -9,28 +9,34 @@ import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.net.URI;
 
-import com.jayway.jsonpath.JsonPath;
+import com.starling.models.Week;
+import com.starling.services.AccountService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.starling.models.Week;
 
 public class App {
     private static final Logger LOG = LoggerFactory.getLogger(App.class);
     private HttpClient client;
+    private AccountService accountService;
+
+    public App(HttpClient client, AccountService accountService) {
+        this.client = client;
+        this.accountService = accountService;
+    }
 
     public App(HttpClient client) {
         this.client = client;
+        this.accountService = new AccountService(client, LOG);
     }
 
     public String getRawFeedItems(String weekStartInputString, String bearerToken) {
         Week week = this.getWeekFromStartDate(weekStartInputString);
 
-        String accountId = this.getPrimaryAccountId(bearerToken);
+        String accountId = this.accountService.getPrimaryAccountId(bearerToken);
 
         String requestString = String.format(
-                Constants.FEED_REQUEST_STRING_FORMAT,
-                Constants.STARLING_API_URL,
+                Constants.FEED_API_STRING_FORMAT,
                 accountId,
                 week.start,
                 week.end);
@@ -60,26 +66,6 @@ public class App {
 
         Week week = new Week(weekStartRequestString, weekEndRequestString);
         return week;
-    }
-
-    public String getPrimaryAccountId(String bearerToken) {
-        String response = this.getAccounts(bearerToken);
-        String accountId = JsonPath.read(response, "$.accounts[0].accountUid");
-        return accountId;
-    }
-
-    private String getAccounts(String bearerToken) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(Constants.STARLING_API_URL + "/accounts"))
-                .header("Authorization", "Bearer " + bearerToken)
-                .build();
-        try {
-            HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body();
-        } catch (Exception exception) {
-            LOG.error("An error occurred: ", exception);
-            return null;
-        }
     }
 
     public static void main(String[] args) {
