@@ -5,9 +5,9 @@ package com.starling;
 
 import java.net.http.HttpClient;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starling.models.FeedItems;
 import com.starling.services.AccountService;
+import com.starling.services.RoundUpService;
 import com.starling.services.FeedService;
 
 import org.slf4j.Logger;
@@ -33,21 +33,27 @@ public class App {
             LOG.info("Getting primary account ID.");
             return this.accountService.getPrimaryAccountId(bearerToken);
         } catch (Exception exception) {
-            LOG.error("An error occurred: ", exception);
-            throw new RuntimeException("An error occurred: ", exception);
+            LOG.error("An error occurred getting primary account id: ", exception);
+            throw exception;
         }
     }
 
-    public String getFeedItems(String accountId, String weekStartInputString, String bearerToken) {
-        ObjectMapper mapper = new ObjectMapper();
-
+    public FeedItems getFeedItems(String accountId, String weekStartInputString, String bearerToken) {
         try {
             LOG.info("Getting feed items.");
-            FeedItems feedItems = this.feedService.getFeedItems(accountId, weekStartInputString, bearerToken);
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(feedItems);
+            return this.feedService.getFeedItems(accountId, weekStartInputString, bearerToken);
         } catch (Exception exception) {
-            LOG.error("An error occurred: ", exception);
-            throw new RuntimeException("An error occurred: ", exception);
+            LOG.error("An error occurred getting feed items: ", exception);
+            throw exception;
+        }
+    }
+
+    public int calculateSavings(FeedItems feedItems) {
+        try {
+            return RoundUpService.calculateTotalSavings(feedItems);
+        } catch (Exception exception) {
+            LOG.error("An error occurred calculating savings: ", exception);
+            throw exception;
         }
     }
 
@@ -66,7 +72,10 @@ public class App {
 
         String accountId = app.getAccountId(bearerToken);
 
-        String response = app.getFeedItems(accountId, weekStart, bearerToken);
+        FeedItems feedItems = app.getFeedItems(accountId, weekStart, bearerToken);
+
+        String response = Integer.toString(app.calculateSavings(feedItems));
+
         System.out.println(response);
     }
 }

@@ -62,4 +62,20 @@ public class AccountServiceTest {
             assertEquals("An error occurred: 404", "An error occurred: 404");
         }
     }
+
+    @Test
+    void testGetPrimaryAccountIdThrowsExceptionWhenAccountsNotPresent() throws Exception {
+        // Arrange
+        HttpResponse<Object> httpResponse = mock(HttpResponse.class);
+        when(httpResponse.body()).thenReturn("");
+        when(client.send(any(), any())).thenReturn(httpResponse);
+
+        // Act
+        try {
+            accountService.getPrimaryAccountId("Mock token");
+        } catch (Exception exception) {
+            // Assert
+            assertEquals("An error occurred: No accounts found", "An error occurred: No accounts found");
+        }
+    }
 }

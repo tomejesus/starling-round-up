@@ -28,6 +28,12 @@ public class AccountService {
             this.logger.error("An error occurred getting accounts: ", exception);
             throw new RuntimeException("An error occurred accounts: ", exception);
         }
+
+        if (!accounts.contains("accounts")) {
+            this.logger.error("Accounts not found");
+            throw new RuntimeException("Accounts not found");
+        }
+
         String accountId;
 
         // TODO: Create a model for the response and use that instead of JsonPath

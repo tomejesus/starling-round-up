@@ -5,7 +5,6 @@ package com.starling;
 
 import java.net.http.HttpClient;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starling.models.FeedAmount;
 import com.starling.models.FeedItem;
 import com.starling.models.FeedItems;
@@ -15,6 +14,7 @@ import com.starling.services.FeedService;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -37,20 +37,44 @@ class AppTest {
     }
 
     @Test
+    void testGetAccountIdThrows() throws Exception {
+        // Arrange
+        when(accountService.getPrimaryAccountId(any())).thenThrow(new RuntimeException("Mocked Error"));
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            // Act
+            app.getAccountId("Mock token");
+        });
+
+        // Assert
+        assertEquals("Mocked Error", exception.getMessage());
+    }
+
+    @Test
     void testGetFeedItems() throws Exception {
         // Arrange
         FeedItems mockedFeedItems = createMockedFeedItems();
         when(feedService.getFeedItems(any(), any(), any())).thenReturn(mockedFeedItems);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String mockedFeedItemsJson = objectMapper.writeValueAsString(mockedFeedItems);
 
         // Act
-        String response = app.getFeedItems("MockAccountId", "2021-01-01", "MockToken");
+        FeedItems response = app.getFeedItems("MockAccountId", "2021-01-01", "MockToken");
 
         // Assert
-        String expected = mockedFeedItemsJson.replaceAll("\\s", "");
-        String actual = response.replaceAll("\\s", "");
-        assertEquals(expected, actual);
+        assertEquals(mockedFeedItems, response);
+    }
+
+    @Test
+    void testGetFeedItemsThrows() throws Exception {
+        // Arrange
+        when(feedService.getFeedItems(any(), any(), any())).thenThrow(new RuntimeException("Mocked Error"));
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            // Act
+            app.getFeedItems("MockAccountId", "2021-01-01", "MockToken");
+        });
+
+        // Assert
+        assertEquals("Mocked Error", exception.getMessage());
     }
 
     private FeedItems createMockedFeedItems() {
