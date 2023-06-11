@@ -4,11 +4,24 @@
 package com.starling;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
 
 class AppTest {
-    @Test void appHasAGreeting() {
-        App classUnderTest = new App();
-        assertNotNull(classUnderTest.getGreeting(), "app should have a greeting");
+    @Test
+    void testGetAccounts() throws Exception {
+        // Arrange
+        HttpClient client = mock(HttpClient.class);
+        HttpResponse<Object> httpResponse = mock(HttpResponse.class);
+        when(httpResponse.body()).thenReturn("Mock API response");
+        when(client.send(any(), any())).thenReturn(httpResponse);
+        App app = new App(client);
+        // Act
+        String response = app.getAccounts("Mock token");
+        // Assert
+        assertEquals("Mock API response", response);
     }
 }

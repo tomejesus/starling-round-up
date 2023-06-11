@@ -3,12 +3,41 @@
  */
 package com.starling;
 
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.URI;
+
 public class App {
-    public String getGreeting() {
-        return "Hello World!";
+    private HttpClient client;
+
+    public App(HttpClient client) {
+        this.client = client;
+    }
+
+    public String getAccounts(String bearerToken) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api-sandbox.starlingbank.com/api/v2/accounts"))
+                .header("Authorization", "Bearer " + bearerToken)
+                .build();
+        try {
+            HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.body();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
     }
 
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        if (args.length < 1) {
+            System.err.println("Please provide the bearer token as a command line argument.");
+            System.exit(1);
+        }
+        HttpClient client = HttpClient.newHttpClient();
+        App app = new App(client);
+        String bearerToken = args[0];
+        String response = app.getAccounts(bearerToken);
+        System.out.println(response);
     }
 }
