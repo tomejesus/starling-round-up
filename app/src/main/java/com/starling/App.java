@@ -4,68 +4,51 @@
 package com.starling;
 
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.LocalDate;
-import java.net.URI;
 
-import com.starling.models.Week;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.starling.models.FeedItems;
 import com.starling.services.AccountService;
+import com.starling.services.FeedService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class App {
     private static final Logger LOG = LoggerFactory.getLogger(App.class);
-    private HttpClient client;
     private AccountService accountService;
+    private FeedService feedService;
 
-    public App(HttpClient client, AccountService accountService) {
-        this.client = client;
+    public App(HttpClient client, AccountService accountService, FeedService feedService) {
         this.accountService = accountService;
+        this.feedService = feedService;
     }
 
     public App(HttpClient client) {
-        this.client = client;
         this.accountService = new AccountService(client, LOG);
+        this.feedService = new FeedService(client, LOG);
     }
 
-    public String getRawFeedItems(String weekStartInputString, String bearerToken) {
-        Week week = this.getWeekFromStartDate(weekStartInputString);
-
-        String accountId = this.accountService.getPrimaryAccountId(bearerToken);
-
-        String requestString = String.format(
-                Constants.FEED_API_STRING_FORMAT,
-                accountId,
-                week.start,
-                week.end);
-
-        System.out.println(requestString);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(requestString))
-                .header("Authorization", "Bearer " + bearerToken)
-                .build();
-
+    public String getAccountId(String bearerToken) {
         try {
-            HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body();
+            LOG.info("Getting primary account ID.");
+            return this.accountService.getPrimaryAccountId(bearerToken);
         } catch (Exception exception) {
             LOG.error("An error occurred: ", exception);
-            return null;
+            throw new RuntimeException("An error occurred: ", exception);
         }
     }
 
-    private Week getWeekFromStartDate(String startDate) {
-        LocalDate weekStart = LocalDate.parse(startDate);
-        LocalDate weekEnd = weekStart.plusDays(7);
+    public String getFeedItems(String accountId, String weekStartInputString, String bearerToken) {
+        ObjectMapper mapper = new ObjectMapper();
 
-        String weekStartRequestString = weekStart.toString() + "T00:00:00.000Z";
-        String weekEndRequestString = weekEnd.toString() + "T00:00:00.000Z";
-
-        Week week = new Week(weekStartRequestString, weekEndRequestString);
-        return week;
+        try {
+            LOG.info("Getting feed items.");
+            FeedItems feedItems = this.feedService.getFeedItems(accountId, weekStartInputString, bearerToken);
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(feedItems);
+        } catch (Exception exception) {
+            LOG.error("An error occurred: ", exception);
+            throw new RuntimeException("An error occurred: ", exception);
+        }
     }
 
     public static void main(String[] args) {
@@ -81,7 +64,9 @@ public class App {
         String weekStart = args[0];
         String bearerToken = args[1];
 
-        String response = app.getRawFeedItems(weekStart, bearerToken);
+        String accountId = app.getAccountId(bearerToken);
+
+        String response = app.getFeedItems(accountId, weekStart, bearerToken);
         System.out.println(response);
     }
 }

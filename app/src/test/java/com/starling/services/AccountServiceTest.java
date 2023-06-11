@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 
 public class AccountServiceTest {
     private final HttpClient client = mock(HttpClient.class);
-
     private final Logger logger = LoggerFactory.getLogger(AccountServiceTest.class);
     private final AccountService accountService = new AccountService(client, logger);
 
@@ -33,7 +32,7 @@ public class AccountServiceTest {
     }
 
     @Test
-    void testGetPrimaryAccountIdThrowsException() throws Exception {
+    void testGetPrimaryAccountIdThrowsExceptionOnError() throws Exception {
         // Arrange
         HttpResponse<Object> httpResponse = mock(HttpResponse.class);
         when(httpResponse.body()).thenReturn(new Exception("Mocked Error", null));
@@ -45,6 +44,22 @@ public class AccountServiceTest {
         } catch (Exception exception) {
             // Assert
             assertEquals("An error occurred: Mocked Error", "An error occurred: Mocked Error");
+        }
+    }
+
+    @Test
+    void testGetPrimaryAccountIdThrowsExceptionWhenServerError() throws Exception {
+        // Arrange
+        HttpResponse<Object> httpResponse = mock(HttpResponse.class);
+        when(httpResponse.statusCode()).thenReturn(404);
+        when(client.send(any(), any())).thenReturn(httpResponse);
+
+        // Act
+        try {
+            accountService.getPrimaryAccountId("Mock token");
+        } catch (Exception exception) {
+            // Assert
+            assertEquals("An error occurred: 404", "An error occurred: 404");
         }
     }
 }

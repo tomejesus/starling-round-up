@@ -20,8 +20,25 @@ public class AccountService {
     }
 
     public String getPrimaryAccountId(String bearerToken) {
-        String response = this.getAccounts(bearerToken);
-        String accountId = JsonPath.read(response, "$.accounts[0].accountUid");
+        String accounts;
+
+        try {
+            accounts = this.getAccounts(bearerToken);
+        } catch (Exception exception) {
+            this.logger.error("An error occurred getting accounts: ", exception);
+            throw new RuntimeException("An error occurred accounts: ", exception);
+        }
+        String accountId;
+
+        // TODO: Create a model for the response and use that instead of JsonPath
+        try {
+            accountId = JsonPath.read(accounts, "$.accounts[0].accountUid");
+            this.logger.info("Primary account ID: " + accountId);
+        } catch (Exception exception) {
+            this.logger.error("An error occurred getting primary account ID: ", exception);
+            throw new RuntimeException("An error occurred getting primary account ID: ", exception);
+        }
+
         return accountId;
     }
 

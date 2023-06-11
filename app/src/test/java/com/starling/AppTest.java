@@ -4,9 +4,13 @@
 package com.starling;
 
 import java.net.http.HttpClient;
-import java.net.http.HttpResponse;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.starling.models.FeedAmount;
+import com.starling.models.FeedItem;
+import com.starling.models.FeedItems;
 import com.starling.services.AccountService;
+import com.starling.services.FeedService;
 
 import org.junit.jupiter.api.Test;
 
@@ -15,24 +19,47 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class AppTest {
+    HttpClient client = mock(HttpClient.class);
+    AccountService accountService = mock(AccountService.class);
+    FeedService feedService = mock(FeedService.class);
+    App app = new App(client, accountService, feedService);
+
+    @Test
+    void testGetAccountId() throws Exception {
+        // Arrange
+        when(accountService.getPrimaryAccountId(any())).thenReturn("MockAccountId");
+
+        // Act
+        String response = app.getAccountId("Mock token");
+
+        // Assert
+        assertEquals("MockAccountId", response);
+    }
 
     @Test
     void testGetFeedItems() throws Exception {
         // Arrange
-        AccountService accountService = mock(AccountService.class);
-        when(accountService.getPrimaryAccountId(any())).thenReturn("MockAccountId");
-        String mockAccountsResponse = "{\"feedItems\":[{\"feedItemUid\":\"feedItem1\", \"direction\":\"OUT\", \"amount\":{\"currency\":\"GBP\",\"minorUnits\":25}},{\"feedItemUid\":\"feedItem2\", \"direction\":\"IN\", \"amount\":{\"currency\":\"GBP\",\"minorUnits\":50}}]}";
-        HttpClient client = mock(HttpClient.class);
-        HttpResponse<Object> httpResponse = mock(HttpResponse.class);
-        when(httpResponse.body()).thenReturn(mockAccountsResponse);
-        when(client.send(any(), any())).thenReturn(httpResponse);
-        App app = new App(client, accountService);
+        FeedItems mockedFeedItems = createMockedFeedItems();
+        when(feedService.getFeedItems(any(), any(), any())).thenReturn(mockedFeedItems);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String mockedFeedItemsJson = objectMapper.writeValueAsString(mockedFeedItems);
 
         // Act
-        String response = app.getRawFeedItems("2021-01-01", "Mock token");
+        String response = app.getFeedItems("MockAccountId", "2021-01-01", "MockToken");
 
         // Assert
-        assertEquals(mockAccountsResponse, response);
+        String expected = mockedFeedItemsJson.replaceAll("\\s", "");
+        String actual = response.replaceAll("\\s", "");
+        assertEquals(expected, actual);
+    }
+
+    private FeedItems createMockedFeedItems() {
+        FeedAmount feedAmount = new FeedAmount("USD", 123);
+        FeedItem feedItem = new FeedItem("MockFeedItemId", "IN", feedAmount);
+
+        FeedItems feedItems = new FeedItems(new FeedItem[] { feedItem });
+
+        return feedItems;
     }
 
 }

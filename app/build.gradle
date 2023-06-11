@@ -31,6 +31,9 @@ dependencies {
 
     // Use logback for logging.
     implementation 'ch.qos.logback:logback-classic:1.2.6'
+
+    // Use jackson for JSON object mapping.
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
     
 }
 
