@@ -10,7 +10,7 @@ import com.starling.models.FeedItems;
 
 public class RoundUpServiceTest {
     @Test
-    public void testCalculateTotalSavingsWhenThereAreRemainders() {
+    public void testCalculateRoundUpWhenThereAreRemainders() {
         FeedItem[] feedItemArray = new FeedItem[] {
                 new FeedItem("2017-10-14T14:00:00Z", "OUT", new FeedAmount("GBP", 150)),
                 new FeedItem("2017-10-14T14:00:00Z", "OUT", new FeedAmount("GBP", 250)),
@@ -29,11 +29,18 @@ public class RoundUpServiceTest {
                 new FeedItem("2017-10-14T14:00:00Z", "OUT", new FeedAmount("GBP", 1580))
         };
         FeedItems feedItems = new FeedItems(feedItemArray);
-        assertEquals(600, RoundUpService.calculateTotalSavings(feedItems));
+        assertEquals(600, RoundUpService.calculateRoundUp(feedItems));
     }
 
     @Test
-    public void testCalculateTotalSavingsWhenThereAreNoRemainders() {
+    public void testCalculateRoundUpWhenThereAreNoFeedItems() {
+        FeedItem[] feedItemArray = new FeedItem[] {};
+        FeedItems feedItems = new FeedItems(feedItemArray);
+        assertEquals(0, RoundUpService.calculateRoundUp(feedItems));
+    }
+
+    @Test
+    public void testCalculateRoundUpWhenThereAreNoRemainders() {
         FeedItem[] feedItemArray = new FeedItem[] {
                 new FeedItem("2017-10-14T14:00:00Z", "OUT", new FeedAmount("GBP", 100)),
                 new FeedItem("2017-10-14T14:00:00Z", "OUT", new FeedAmount("GBP", 200)),
@@ -52,11 +59,11 @@ public class RoundUpServiceTest {
                 new FeedItem("2017-10-14T14:00:00Z", "OUT", new FeedAmount("GBP", 1500))
         };
         FeedItems feedItems = new FeedItems(feedItemArray);
-        assertEquals(0, RoundUpService.calculateTotalSavings(feedItems));
+        assertEquals(0, RoundUpService.calculateRoundUp(feedItems));
     }
 
     @Test
-    public void testCalculateTotalSavingsDoesNotCountInTransactions() {
+    public void testCalculateRoundUpDoesNotCountInTransactions() {
         FeedItem[] feedItemArray = new FeedItem[] {
                 new FeedItem("2017-10-14T14:00:00Z", "OUT", new FeedAmount("GBP", 150)),
                 new FeedItem("2017-10-14T14:00:00Z", "IN", new FeedAmount("GBP", 250)),
@@ -75,6 +82,6 @@ public class RoundUpServiceTest {
                 new FeedItem("2017-10-14T14:00:00Z", "OUT", new FeedAmount("GBP", 1550))
         };
         FeedItems feedItems = new FeedItems(feedItemArray);
-        assertEquals(400, RoundUpService.calculateTotalSavings(feedItems));
+        assertEquals(400, RoundUpService.calculateRoundUp(feedItems));
     }
 }

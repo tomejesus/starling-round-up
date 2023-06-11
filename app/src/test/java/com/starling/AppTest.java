@@ -10,6 +10,7 @@ import com.starling.models.FeedItem;
 import com.starling.models.FeedItems;
 import com.starling.services.AccountService;
 import com.starling.services.FeedService;
+import com.starling.services.RoundUpService;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +23,7 @@ class AppTest {
     HttpClient client = mock(HttpClient.class);
     AccountService accountService = mock(AccountService.class);
     FeedService feedService = mock(FeedService.class);
+    RoundUpService roundUpService = mock(RoundUpService.class);
     App app = new App(client, accountService, feedService);
 
     @Test
@@ -79,7 +81,7 @@ class AppTest {
 
     private FeedItems createMockedFeedItems() {
         FeedAmount feedAmount = new FeedAmount("USD", 123);
-        FeedItem feedItem = new FeedItem("MockFeedItemId", "IN", feedAmount);
+        FeedItem feedItem = new FeedItem("MockFeedItemId", "OUT", feedAmount);
 
         FeedItems feedItems = new FeedItems(new FeedItem[] { feedItem });
 

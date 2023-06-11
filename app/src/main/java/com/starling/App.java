@@ -50,7 +50,7 @@ public class App {
 
     public int calculateSavings(FeedItems feedItems) {
         try {
-            return RoundUpService.calculateTotalSavings(feedItems);
+            return RoundUpService.calculateRoundUp(feedItems);
         } catch (Exception exception) {
             LOG.error("An error occurred calculating savings: ", exception);
             throw exception;

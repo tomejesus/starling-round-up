@@ -21,7 +21,8 @@ public class AccountServiceTest {
     void testGetPrimaryAccountIdGetsId() throws Exception {
         // Arrange
         HttpResponse<Object> httpResponse = mock(HttpResponse.class);
-        when(httpResponse.body()).thenReturn("{\"accounts\":[{\"accountUid\":\"MockAccountId\"}]}");
+        when(httpResponse.body())
+                .thenReturn("{\"accounts\":[{\"accountUid\":\"MockAccountId\",\"accountType\":\"PRIMARY\"}]}");
         when(client.send(any(), any())).thenReturn(httpResponse);
 
         // Act
@@ -29,6 +30,23 @@ public class AccountServiceTest {
 
         // Assert
         assertEquals("MockAccountId", response);
+    }
+
+    @Test
+    void testGetPrimaryAccountIdThrowsExceptionWhenNoPrimary() throws Exception {
+        // Arrange
+        HttpResponse<Object> httpResponse = mock(HttpResponse.class);
+        when(httpResponse.body()).thenReturn("{\"accounts\":[{\"accountUid\":\"MockAccountId\"}]}");
+        when(client.send(any(), any())).thenReturn(httpResponse);
+
+        // Act
+        try {
+            accountService.getPrimaryAccountId("Mock token");
+        } catch (Exception exception) {
+            // Assert
+            assertEquals("An error occurred: Primary account not found",
+                    "An error occurred: Primary account not found");
+        }
     }
 
     @Test

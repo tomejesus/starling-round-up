@@ -4,10 +4,15 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Optional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.starling.Constants;
+import com.starling.models.Account;
+import com.starling.models.Accounts;
 
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 
 public class AccountService {
@@ -20,35 +25,44 @@ public class AccountService {
     }
 
     public String getPrimaryAccountId(String bearerToken) {
-        String accounts;
+        Account[] allAccounts;
 
         try {
-            accounts = this.getAccounts(bearerToken);
+            allAccounts = this.getAccounts(bearerToken).accounts;
         } catch (Exception exception) {
             this.logger.error("An error occurred getting accounts: ", exception);
             throw new RuntimeException("An error occurred accounts: ", exception);
         }
 
-        if (!accounts.contains("accounts")) {
-            this.logger.error("Accounts not found");
-            throw new RuntimeException("Accounts not found");
+        if (allAccounts.length == 0) {
+            this.logger.error("No accounts found");
+            throw new RuntimeException("No accounts found");
         }
 
-        String accountId;
-
-        // TODO: Create a model for the response and use that instead of JsonPath
-        try {
-            accountId = JsonPath.read(accounts, "$.accounts[0].accountUid");
-            this.logger.info("Primary account ID: " + accountId);
-        } catch (Exception exception) {
-            this.logger.error("An error occurred getting primary account ID: ", exception);
-            throw new RuntimeException("An error occurred getting primary account ID: ", exception);
+        for (Account account : allAccounts) {
+            if ("PRIMARY".equals(account.accountType)) {
+                return account.accountUid;
+            }
         }
 
-        return accountId;
+        this.logger.error("Primary account not found");
+        throw new RuntimeException("Primary account not found");
     }
 
-    private String getAccounts(String bearerToken) {
+    private Accounts getAccounts(String bearerToken) {
+        String rawAccounts = this.getRawAccounts(bearerToken);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            Accounts accounts = objectMapper.readValue(rawAccounts, Accounts.class);
+            return accounts;
+        } catch (Exception exception) {
+            this.logger.error("An error occurred: ", exception);
+            throw new RuntimeException("An error occurred: ", exception);
+        }
+    }
+
+    private String getRawAccounts(String bearerToken) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Constants.ACCOUNTS_API))
                 .header("Authorization", "Bearer " + bearerToken)

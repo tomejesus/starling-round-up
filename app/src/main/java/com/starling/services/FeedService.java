@@ -30,8 +30,8 @@ public class FeedService {
             FeedItems feedItems = objectMapper.readValue(rawFeedItems, FeedItems.class);
             return feedItems;
         } catch (Exception exception) {
-            this.logger.error("An error occurred: ", exception);
-            throw new RuntimeException("An error occurred: ", exception);
+            this.logger.error("An error occurred parsing feed items: ", exception);
+            throw new RuntimeException("An error occurred parsing feed items: ", exception);
         }
     }
 
@@ -53,8 +53,8 @@ public class FeedService {
             HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
             return response.body();
         } catch (Exception exception) {
-            this.logger.error("An error occurred: ", exception);
-            throw new RuntimeException("An error occurred: ", exception);
+            this.logger.error("An error occurred getting raw feed items: ", exception);
+            throw new RuntimeException("An error occurred getting raw feed items: ", exception);
         }
     }
 
