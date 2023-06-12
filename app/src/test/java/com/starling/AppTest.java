@@ -10,6 +10,7 @@ import com.starling.models.FeedItem;
 import com.starling.models.FeedItems;
 import com.starling.repos.AccountsRepo;
 import com.starling.repos.FeedRepo;
+import com.starling.repos.SavingGoalsRepo;
 import com.starling.services.AccountsService;
 import com.starling.services.FeedService;
 import com.starling.services.SavingGoalsService;
@@ -27,8 +28,9 @@ class AppTest {
     AccountsService accountService = mock(AccountsService.class);
     FeedRepo feedRepo = mock(FeedRepo.class);
     FeedService feedService = mock(FeedService.class);
+    SavingGoalsRepo savingGoalsRepo = mock(SavingGoalsRepo.class);
     SavingGoalsService savingGoalsService = mock(SavingGoalsService.class);
-    App app = new App(client, accountsRepo, accountService, feedRepo, feedService, savingGoalsService);
+    App app = new App(client, accountsRepo, accountService, feedRepo, feedService, savingGoalsRepo, savingGoalsService);
 
     @Test
     void testGetAccountId() throws Exception {

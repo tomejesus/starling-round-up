@@ -1,53 +1,43 @@
 package com.starling.services;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpRequest.BodyPublisher;
-import java.util.UUID;
-
 import org.slf4j.Logger;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.starling.Constants;
 import com.starling.models.CreateSavingsGoalResponse;
 import com.starling.models.SavingsGoal;
 import com.starling.models.SavingsGoalList;
+import com.starling.repos.SavingGoalsRepo;
 
 public class SavingGoalsService {
-    private HttpClient client;
+    private SavingGoalsRepo repo;
     private Logger logger;
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper;
 
-    public SavingGoalsService(HttpClient client, Logger logger) {
-        this.client = client;
+    public SavingGoalsService(SavingGoalsRepo repo, ObjectMapper objectMapper, Logger logger) {
+        this.repo = repo;
+        this.objectMapper = objectMapper;
         this.logger = logger;
     }
 
     public String addMoneyToSavingsGoal(String accountId, String bearerToken, int amount) {
-        String savingsGoalId = this.getRoundUpGoalId(accountId, bearerToken);
-        String transferUid = UUID.randomUUID().toString();
-
-        String requestString = String.format(Constants.ADD_MONEY_TO_SAVINGS_GOAL_API_STRING_FORMAT, accountId,
-                savingsGoalId, transferUid);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(requestString))
-                .header("Authorization", "Bearer " + bearerToken)
-                .header("Content-Type", "application/json")
-                .PUT(HttpRequest.BodyPublishers
-                        .ofString(String.format(Constants.ADD_MONEY_TO_SAVINGS_GOAL_REQUEST_BODY_FORMAT, amount)))
-                .build();
-
-        boolean success;
+        String savingsGoalId;
         try {
-            HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
-            success = (response.statusCode() == 200 && response.body().contains("true"));
-        } catch (Exception exception) {
-            this.logger.error("An error occurred adding money to savings goal: ", exception);
-            throw new RuntimeException("An error occurred adding money to savings goal: ", exception);
+            savingsGoalId = this.getRoundUpGoalId(accountId, bearerToken);
+        } catch (Exception e) {
+            this.logger.error("Failed to get savings goal ID", e);
+            throw new RuntimeException("Failed to get savings goal ID", e);
         }
+
+        String response;
+        try {
+            response = this.repo.addMoneyToSavingsGoal(accountId, savingsGoalId, amount, bearerToken);
+        } catch (Exception e) {
+            this.logger.error("Failed to add money to savings goal", e);
+            throw new RuntimeException("Failed to add money to savings goal", e);
+        }
+
+        boolean success = response.contains("true");
 
         if (success) {
             this.logger.info("Successfully added money to savings goal.");
@@ -60,8 +50,7 @@ public class SavingGoalsService {
     }
 
     private String getRoundUpGoalId(String accountId, String bearerToken) {
-        String rawSavingsGoals = this.getRawSavingGoalsList(accountId, bearerToken);
-        SavingsGoalList savingsGoals = this.parseSavingsGoalsList(rawSavingsGoals);
+        SavingsGoalList savingsGoals = this.getSavingsGoalsList(accountId, bearerToken);
 
         for (SavingsGoal savingsGoal : savingsGoals.savingsGoalList) {
             if ("RoundUp1".equals(savingsGoal.name)) {
@@ -70,53 +59,31 @@ public class SavingGoalsService {
         }
 
         this.logger.info("Round up goal not found creating new goal.");
-        return createSavingsGoal(accountId, bearerToken);
-    }
-
-    private String createSavingsGoal(String accountId, String bearerToken) {
-        String requestString = String.format(Constants.SAVINGS_GOALS_API_STRING_FORMAT, accountId);
-        BodyPublisher bodyPublisher = HttpRequest.BodyPublishers.ofString(Constants.SAVINGS_GOAL_REQUEST_BODY);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(requestString))
-                .header("Authorization", "Bearer " + bearerToken)
-                .header("Content-Type", "application/json")
-                .PUT(bodyPublisher)
-                .build();
-
+        String savingsGoalResponse = this.repo.createSavingsGoal(accountId, bearerToken);
         try {
-            HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
-            return objectMapper.readValue(response.body(), CreateSavingsGoalResponse.class).savingsGoalUid;
-        } catch (Exception exception) {
-            this.logger.error("An error occurred creating savings goal: ", exception);
-            throw new RuntimeException("An error occurred creating savings goal: ", exception);
+            return objectMapper.readValue(savingsGoalResponse, CreateSavingsGoalResponse.class).savingsGoalUid;
+        } catch (JsonProcessingException e) {
+            this.logger.error("Failed to parse savings goal response", e);
+            throw new RuntimeException("Failed to parse savings goal response", e);
         }
+
     }
 
-    private SavingsGoalList parseSavingsGoalsList(String rawSavingsGoals) {
+    private SavingsGoalList getSavingsGoalsList(String accountId, String bearerToken) {
+        String rawSavingsGoals;
+        try {
+            rawSavingsGoals = this.repo.getSavingGoalsList(accountId, bearerToken);
+        } catch (Exception e) {
+            this.logger.error("Failed to get savings goals list", e);
+            throw new RuntimeException("Failed to get savings goals list", e);
+        }
+
         try {
             SavingsGoalList savingsGoals = objectMapper.readValue(rawSavingsGoals, SavingsGoalList.class);
             return savingsGoals;
         } catch (Exception exception) {
-            this.logger.error("An error occurred parsing savings goals: ", exception);
-            throw new RuntimeException("An error occurred parsing savings goals: ", exception);
-        }
-    }
-
-    private String getRawSavingGoalsList(String accountId, String bearerToken) {
-        String requestString = String.format(Constants.SAVINGS_GOALS_API_STRING_FORMAT, accountId);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(requestString))
-                .header("Authorization", "Bearer " + bearerToken)
-                .build();
-
-        try {
-            HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body();
-        } catch (Exception exception) {
-            this.logger.error("An error occurred getting raw savings goal list: ", exception);
-            throw new RuntimeException("An error occurred getting raw savings goal list: ", exception);
+            this.logger.error("Failed to parse savings goals", exception);
+            throw new RuntimeException("Failed to parse savings goals", exception);
         }
     }
 }

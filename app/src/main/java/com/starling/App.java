@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starling.models.FeedItems;
 import com.starling.repos.AccountsRepo;
 import com.starling.repos.FeedRepo;
+import com.starling.repos.SavingGoalsRepo;
 import com.starling.services.AccountsService;
 import com.starling.services.RoundUpService;
 import com.starling.services.SavingGoalsService;
@@ -24,15 +25,18 @@ public class App {
     private AccountsService accountService;
     private FeedRepo feedRepo;
     private FeedService feedService;
+    private SavingGoalsRepo savingsGoalsRepo;
     private SavingGoalsService savingGoalsService;
 
-    public App(HttpClient client, AccountsRepo accountsRepo, AccountsService accountService, FeedRepo feedRepo,
-            FeedService feedService,
-            SavingGoalsService savingGoalsService) {
+    public App(HttpClient client,
+            AccountsRepo accountsRepo, AccountsService accountService,
+            FeedRepo feedRepo, FeedService feedService,
+            SavingGoalsRepo savingGoalsRepo, SavingGoalsService savingGoalsService) {
         this.accountsRepo = accountsRepo;
         this.accountService = accountService;
         this.feedRepo = feedRepo;
         this.feedService = feedService;
+        this.savingsGoalsRepo = savingGoalsRepo;
         this.savingGoalsService = savingGoalsService;
     }
 
@@ -41,7 +45,8 @@ public class App {
         this.accountService = new AccountsService(accountsRepo, OBJECT_MAPPER, LOGGER);
         this.feedRepo = new FeedRepo(client, LOGGER);
         this.feedService = new FeedService(feedRepo, OBJECT_MAPPER, LOGGER);
-        this.savingGoalsService = new SavingGoalsService(client, LOGGER);
+        this.savingsGoalsRepo = new SavingGoalsRepo(client, LOGGER);
+        this.savingGoalsService = new SavingGoalsService(savingsGoalsRepo, OBJECT_MAPPER, LOGGER);
     }
 
     public String getAccountId(String bearerToken) {
