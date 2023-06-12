@@ -8,6 +8,7 @@ import java.net.http.HttpClient;
 import com.starling.models.FeedItems;
 import com.starling.services.AccountService;
 import com.starling.services.RoundUpService;
+import com.starling.services.SavingGoalsService;
 import com.starling.services.FeedService;
 
 import org.slf4j.Logger;
@@ -17,15 +18,19 @@ public class App {
     private static final Logger LOG = LoggerFactory.getLogger(App.class);
     private AccountService accountService;
     private FeedService feedService;
+    private SavingGoalsService savingGoalsService;
 
-    public App(HttpClient client, AccountService accountService, FeedService feedService) {
+    public App(HttpClient client, AccountService accountService, FeedService feedService,
+            SavingGoalsService savingGoalsService) {
         this.accountService = accountService;
         this.feedService = feedService;
+        this.savingGoalsService = savingGoalsService;
     }
 
     public App(HttpClient client) {
         this.accountService = new AccountService(client, LOG);
         this.feedService = new FeedService(client, LOG);
+        this.savingGoalsService = new SavingGoalsService(client, LOG);
     }
 
     public String getAccountId(String bearerToken) {
@@ -57,6 +62,16 @@ public class App {
         }
     }
 
+    public boolean addSavings(String accountId, int savings, String bearerToken) {
+        try {
+            LOG.info("Adding savings.");
+            return this.savingGoalsService.addMoneyToSavingsGoal(accountId, bearerToken, savings);
+        } catch (Exception exception) {
+            LOG.error("An error occurred adding savings: ", exception);
+            throw exception;
+        }
+    }
+
     public static void main(String[] args) {
         if (args.length < 2) {
             LOG.error("No arguments provided.");
@@ -74,7 +89,9 @@ public class App {
 
         FeedItems feedItems = app.getFeedItems(accountId, weekStart, bearerToken);
 
-        String response = Integer.toString(app.calculateSavings(feedItems));
+        int savings = app.calculateSavings(feedItems);
+
+        boolean response = app.addSavings(accountId, savings, bearerToken);
 
         System.out.println(response);
     }

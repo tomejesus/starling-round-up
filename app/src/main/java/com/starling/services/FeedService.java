@@ -39,7 +39,7 @@ public class FeedService {
         Week week = this.getWeekFromStartDate(weekStartInputString);
 
         String requestString = String.format(
-                Constants.FEED_API_STRING_FORMAT,
+                Constants.GET_FEED_API_STRING_FORMAT,
                 accountId,
                 week.start,
                 week.end);

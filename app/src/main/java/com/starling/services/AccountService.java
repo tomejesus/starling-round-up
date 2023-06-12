@@ -4,15 +4,12 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
 import com.starling.Constants;
 import com.starling.models.Account;
 import com.starling.models.Accounts;
 
-import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 
 public class AccountService {
@@ -64,7 +61,7 @@ public class AccountService {
 
     private String getRawAccounts(String bearerToken) {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(Constants.ACCOUNTS_API))
+                .uri(URI.create(Constants.GET_ACCOUNTS_API))
                 .header("Authorization", "Bearer " + bearerToken)
                 .build();
         try {

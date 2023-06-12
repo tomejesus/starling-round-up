@@ -11,6 +11,7 @@ import com.starling.models.FeedItems;
 import com.starling.services.AccountService;
 import com.starling.services.FeedService;
 import com.starling.services.RoundUpService;
+import com.starling.services.SavingGoalsService;
 
 import org.junit.jupiter.api.Test;
 
@@ -23,8 +24,8 @@ class AppTest {
     HttpClient client = mock(HttpClient.class);
     AccountService accountService = mock(AccountService.class);
     FeedService feedService = mock(FeedService.class);
-    RoundUpService roundUpService = mock(RoundUpService.class);
-    App app = new App(client, accountService, feedService);
+    SavingGoalsService savingGoalsService = mock(SavingGoalsService.class);
+    App app = new App(client, accountService, feedService, savingGoalsService);
 
     @Test
     void testGetAccountId() throws Exception {
