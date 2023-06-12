@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starling.repos.AccountsRepo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.when;
 public class AccountsServiceTest {
 
     private AccountsService accountsService;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
     private AccountsRepo accountsRepo;
@@ -25,7 +27,7 @@ public class AccountsServiceTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        accountsService = new AccountsService(accountsRepo, logger);
+        accountsService = new AccountsService(accountsRepo, objectMapper, logger);
     }
 
     @Test

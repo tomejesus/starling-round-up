@@ -5,8 +5,10 @@ package com.starling;
 
 import java.net.http.HttpClient;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starling.models.FeedItems;
 import com.starling.repos.AccountsRepo;
+import com.starling.repos.FeedRepo;
 import com.starling.services.AccountsService;
 import com.starling.services.RoundUpService;
 import com.starling.services.SavingGoalsService;
@@ -16,43 +18,48 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class App {
-    private static final Logger LOG = LoggerFactory.getLogger(App.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
     private AccountsRepo accountsRepo;
     private AccountsService accountService;
+    private FeedRepo feedRepo;
     private FeedService feedService;
     private SavingGoalsService savingGoalsService;
 
-    public App(HttpClient client, AccountsRepo accountsRepo, AccountsService accountService, FeedService feedService,
+    public App(HttpClient client, AccountsRepo accountsRepo, AccountsService accountService, FeedRepo feedRepo,
+            FeedService feedService,
             SavingGoalsService savingGoalsService) {
         this.accountsRepo = accountsRepo;
         this.accountService = accountService;
+        this.feedRepo = feedRepo;
         this.feedService = feedService;
         this.savingGoalsService = savingGoalsService;
     }
 
     public App(HttpClient client) {
-        this.accountsRepo = new AccountsRepo(client, LOG);
-        this.accountService = new AccountsService(accountsRepo, LOG);
-        this.feedService = new FeedService(client, LOG);
-        this.savingGoalsService = new SavingGoalsService(client, LOG);
+        this.accountsRepo = new AccountsRepo(client, LOGGER);
+        this.accountService = new AccountsService(accountsRepo, OBJECT_MAPPER, LOGGER);
+        this.feedRepo = new FeedRepo(client, LOGGER);
+        this.feedService = new FeedService(feedRepo, OBJECT_MAPPER, LOGGER);
+        this.savingGoalsService = new SavingGoalsService(client, LOGGER);
     }
 
     public String getAccountId(String bearerToken) {
         try {
-            LOG.info("Getting primary account ID.");
+            LOGGER.info("Getting primary account ID.");
             return this.accountService.getPrimaryAccountId(bearerToken);
         } catch (Exception exception) {
-            LOG.error("An error occurred getting primary account id: ", exception);
+            LOGGER.error("An error occurred getting primary account id: ", exception);
             throw exception;
         }
     }
 
     public FeedItems getFeedItems(String accountId, String weekStartInputString, String bearerToken) {
         try {
-            LOG.info("Getting feed items.");
+            LOGGER.info("Getting feed items.");
             return this.feedService.getFeedItems(accountId, weekStartInputString, bearerToken);
         } catch (Exception exception) {
-            LOG.error("An error occurred getting feed items: ", exception);
+            LOGGER.error("An error occurred getting feed items: ", exception);
             throw exception;
         }
     }
@@ -61,24 +68,24 @@ public class App {
         try {
             return RoundUpService.calculateRoundUp(feedItems);
         } catch (Exception exception) {
-            LOG.error("An error occurred calculating savings: ", exception);
+            LOGGER.error("An error occurred calculating savings: ", exception);
             throw exception;
         }
     }
 
     public String addSavings(String accountId, int savings, String bearerToken) {
         try {
-            LOG.info("Adding savings.");
+            LOGGER.info("Adding savings.");
             return this.savingGoalsService.addMoneyToSavingsGoal(accountId, bearerToken, savings);
         } catch (Exception exception) {
-            LOG.error("An error occurred adding savings: ", exception);
+            LOGGER.error("An error occurred adding savings: ", exception);
             throw exception;
         }
     }
 
     public static void main(String[] args) {
         if (args.length < 2) {
-            LOG.error("No arguments provided.");
+            LOGGER.error("No arguments provided.");
             System.err.println("Please provide the week start and bearer token as a command line argument.");
             System.exit(1);
         }

@@ -9,6 +9,7 @@ import com.starling.models.FeedAmount;
 import com.starling.models.FeedItem;
 import com.starling.models.FeedItems;
 import com.starling.repos.AccountsRepo;
+import com.starling.repos.FeedRepo;
 import com.starling.services.AccountsService;
 import com.starling.services.FeedService;
 import com.starling.services.SavingGoalsService;
@@ -22,11 +23,12 @@ import static org.mockito.Mockito.*;
 
 class AppTest {
     HttpClient client = mock(HttpClient.class);
-    AccountsService accountService = mock(AccountsService.class);
     AccountsRepo accountsRepo = mock(AccountsRepo.class);
+    AccountsService accountService = mock(AccountsService.class);
+    FeedRepo feedRepo = mock(FeedRepo.class);
     FeedService feedService = mock(FeedService.class);
     SavingGoalsService savingGoalsService = mock(SavingGoalsService.class);
-    App app = new App(client, accountsRepo, accountService, feedService, savingGoalsService);
+    App app = new App(client, accountsRepo, accountService, feedRepo, feedService, savingGoalsService);
 
     @Test
     void testGetAccountId() throws Exception {

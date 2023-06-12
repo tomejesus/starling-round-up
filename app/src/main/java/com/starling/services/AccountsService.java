@@ -11,10 +11,12 @@ import org.slf4j.Logger;
 
 public class AccountsService {
     private AccountsRepo repo;
+    private ObjectMapper objectMapper;
     private Logger logger;
 
-    public AccountsService(AccountsRepo repo, Logger logger) {
+    public AccountsService(AccountsRepo repo, ObjectMapper objectMapper, Logger logger) {
         this.repo = repo;
+        this.objectMapper = objectMapper;
         this.logger = logger;
     }
 
@@ -52,10 +54,8 @@ public class AccountsService {
             throw new RuntimeException("An error occurred when calling repo.getAccounts: ", e);
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
         try {
-            Accounts accounts = objectMapper.readValue(rawAccounts, Accounts.class);
+            Accounts accounts = this.objectMapper.readValue(rawAccounts, Accounts.class);
             return accounts;
         } catch (IOException e) {
             this.logger.error("An error occurred when parsing the raw accounts data: ", e);
