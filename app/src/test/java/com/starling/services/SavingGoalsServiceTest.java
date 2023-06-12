@@ -41,7 +41,7 @@ public class SavingGoalsServiceTest {
                 .thenReturn("{\"savingsGoalList\": [{\"name\": \"RoundUp1\", \"savingsGoalUid\": \"" + savingsGoalId
                         + "\"}]}");
         when(repo.addMoneyToSavingsGoal(accountId, savingsGoalId, amount, bearerToken))
-                .thenReturn("{\"success\": \"true\"}");
+                .thenReturn("{\"transferUid\":\"transferId\",\"success\": \"true\"}");
 
         // Act
         String response = savingGoalsService.addMoneyToSavingsGoal(accountId, bearerToken, amount);

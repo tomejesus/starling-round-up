@@ -15,7 +15,7 @@ public class Constants {
     public static final String ADD_MONEY_TO_SAVINGS_GOAL_API_STRING_FORMAT = "https://api-sandbox.starlingbank.com/api/v2/account/%s/savings-goals/%s/add-money/%s";
 
     public static final String SAVINGS_GOAL_REQUEST_BODY = "{"
-            + "\"name\": \"RoundUp1\","
+            + "\"name\": \"RoundUpSavingsGoal\","
             + "\"currency\": \"GBP\","
             + "\"target\": {"
             + "\"currency\": \"GBP\","

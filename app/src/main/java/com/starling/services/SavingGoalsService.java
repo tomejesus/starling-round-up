@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.starling.models.AddToSavingsGoalResponse;
 import com.starling.models.CreateSavingsGoalResponse;
 import com.starling.models.SavingsGoal;
 import com.starling.models.SavingsGoalList;
@@ -37,9 +38,16 @@ public class SavingGoalsService {
             throw new RuntimeException("Failed to add money to savings goal", e);
         }
 
-        boolean success = response.contains("true");
+        AddToSavingsGoalResponse addMoneyResponse;
 
-        if (success) {
+        try {
+            addMoneyResponse = objectMapper.readValue(response, AddToSavingsGoalResponse.class);
+        } catch (JsonProcessingException e) {
+            this.logger.error("Failed to parse add money response", e);
+            throw new RuntimeException("Failed to parse add  money response", e);
+        }
+
+        if ("true".equals(addMoneyResponse.success)) {
             this.logger.info("Successfully added money to savings goal.");
             String amountInDecimal = String.format("%.2f", (double) amount / 100);
             return "GBP " + amountInDecimal + " added to savings goal.";
