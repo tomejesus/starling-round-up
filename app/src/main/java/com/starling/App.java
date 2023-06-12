@@ -6,7 +6,8 @@ package com.starling;
 import java.net.http.HttpClient;
 
 import com.starling.models.FeedItems;
-import com.starling.services.AccountService;
+import com.starling.repos.AccountsRepo;
+import com.starling.services.AccountsService;
 import com.starling.services.RoundUpService;
 import com.starling.services.SavingGoalsService;
 import com.starling.services.FeedService;
@@ -16,19 +17,22 @@ import org.slf4j.LoggerFactory;
 
 public class App {
     private static final Logger LOG = LoggerFactory.getLogger(App.class);
-    private AccountService accountService;
+    private AccountsRepo accountsRepo;
+    private AccountsService accountService;
     private FeedService feedService;
     private SavingGoalsService savingGoalsService;
 
-    public App(HttpClient client, AccountService accountService, FeedService feedService,
+    public App(HttpClient client, AccountsRepo accountsRepo, AccountsService accountService, FeedService feedService,
             SavingGoalsService savingGoalsService) {
+        this.accountsRepo = accountsRepo;
         this.accountService = accountService;
         this.feedService = feedService;
         this.savingGoalsService = savingGoalsService;
     }
 
     public App(HttpClient client) {
-        this.accountService = new AccountService(client, LOG);
+        this.accountsRepo = new AccountsRepo(client, LOG);
+        this.accountService = new AccountsService(accountsRepo, LOG);
         this.feedService = new FeedService(client, LOG);
         this.savingGoalsService = new SavingGoalsService(client, LOG);
     }
@@ -62,7 +66,7 @@ public class App {
         }
     }
 
-    public boolean addSavings(String accountId, int savings, String bearerToken) {
+    public String addSavings(String accountId, int savings, String bearerToken) {
         try {
             LOG.info("Adding savings.");
             return this.savingGoalsService.addMoneyToSavingsGoal(accountId, bearerToken, savings);
@@ -91,7 +95,7 @@ public class App {
 
         int savings = app.calculateSavings(feedItems);
 
-        boolean response = app.addSavings(accountId, savings, bearerToken);
+        String response = app.addSavings(accountId, savings, bearerToken);
 
         System.out.println(response);
     }

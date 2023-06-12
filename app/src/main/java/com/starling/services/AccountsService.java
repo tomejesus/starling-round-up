@@ -1,23 +1,20 @@
 package com.starling.services;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.starling.Constants;
 import com.starling.models.Account;
 import com.starling.models.Accounts;
+import com.starling.repos.AccountsRepo;
 
 import org.slf4j.Logger;
 
-public class AccountService {
-    private HttpClient client;
+public class AccountsService {
+    private AccountsRepo repo;
     private Logger logger;
 
-    public AccountService(HttpClient client, Logger logger) {
-        this.client = client;
+    public AccountsService(AccountsRepo repo, Logger logger) {
+        this.repo = repo;
         this.logger = logger;
     }
 
@@ -47,30 +44,22 @@ public class AccountService {
     }
 
     private Accounts getAccounts(String bearerToken) {
-        String rawAccounts = this.getRawAccounts(bearerToken);
+        String rawAccounts = null;
+        try {
+            rawAccounts = this.repo.getAccounts(bearerToken);
+        } catch (IOException | InterruptedException e) {
+            this.logger.error("An error occurred when calling repo.getAccounts: ", e);
+            throw new RuntimeException("An error occurred when calling repo.getAccounts: ", e);
+        }
+
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
             Accounts accounts = objectMapper.readValue(rawAccounts, Accounts.class);
             return accounts;
-        } catch (Exception exception) {
-            this.logger.error("An error occurred: ", exception);
-            throw new RuntimeException("An error occurred: ", exception);
+        } catch (IOException e) {
+            this.logger.error("An error occurred when parsing the raw accounts data: ", e);
+            throw new RuntimeException("An error occurred when parsing the raw accounts data: ", e);
         }
     }
-
-    private String getRawAccounts(String bearerToken) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(Constants.GET_ACCOUNTS_API))
-                .header("Authorization", "Bearer " + bearerToken)
-                .build();
-        try {
-            HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body();
-        } catch (Exception exception) {
-            this.logger.error("An error occurred: ", exception);
-            throw new RuntimeException("An error occurred: ", exception);
-        }
-    }
-
 }

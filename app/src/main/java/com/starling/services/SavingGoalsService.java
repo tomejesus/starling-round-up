@@ -25,7 +25,7 @@ public class SavingGoalsService {
         this.logger = logger;
     }
 
-    public boolean addMoneyToSavingsGoal(String accountId, String bearerToken, int amount) {
+    public String addMoneyToSavingsGoal(String accountId, String bearerToken, int amount) {
         String savingsGoalId = this.getRoundUpGoalId(accountId, bearerToken);
         String transferUid = UUID.randomUUID().toString();
 
@@ -40,13 +40,23 @@ public class SavingGoalsService {
                         .ofString(String.format(Constants.ADD_MONEY_TO_SAVINGS_GOAL_REQUEST_BODY_FORMAT, amount)))
                 .build();
 
+        boolean success;
         try {
             HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.statusCode() == 200;
+            success = (response.statusCode() == 200 && response.body().contains("true"));
         } catch (Exception exception) {
             this.logger.error("An error occurred adding money to savings goal: ", exception);
             throw new RuntimeException("An error occurred adding money to savings goal: ", exception);
         }
+
+        if (success) {
+            this.logger.info("Successfully added money to savings goal.");
+            String amountInDecimal = String.format("%.2f", (double) amount / 100);
+            return "GBP " + amountInDecimal + " added to savings goal.";
+        }
+
+        this.logger.error("Unable to add money to savings goal.");
+        return "Unable to add money to savings goal.";
     }
 
     private String getRoundUpGoalId(String accountId, String bearerToken) {

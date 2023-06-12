@@ -8,9 +8,9 @@ import java.net.http.HttpClient;
 import com.starling.models.FeedAmount;
 import com.starling.models.FeedItem;
 import com.starling.models.FeedItems;
-import com.starling.services.AccountService;
+import com.starling.repos.AccountsRepo;
+import com.starling.services.AccountsService;
 import com.starling.services.FeedService;
-import com.starling.services.RoundUpService;
 import com.starling.services.SavingGoalsService;
 
 import org.junit.jupiter.api.Test;
@@ -22,10 +22,11 @@ import static org.mockito.Mockito.*;
 
 class AppTest {
     HttpClient client = mock(HttpClient.class);
-    AccountService accountService = mock(AccountService.class);
+    AccountsService accountService = mock(AccountsService.class);
+    AccountsRepo accountsRepo = mock(AccountsRepo.class);
     FeedService feedService = mock(FeedService.class);
     SavingGoalsService savingGoalsService = mock(SavingGoalsService.class);
-    App app = new App(client, accountService, feedService, savingGoalsService);
+    App app = new App(client, accountsRepo, accountService, feedService, savingGoalsService);
 
     @Test
     void testGetAccountId() throws Exception {
@@ -74,6 +75,33 @@ class AppTest {
         Exception exception = assertThrows(Exception.class, () -> {
             // Act
             app.getFeedItems("MockAccountId", "2021-01-01", "MockToken");
+        });
+
+        // Assert
+        assertEquals("Mocked Error", exception.getMessage());
+    }
+
+    @Test
+    void testGetSavingGoals() throws Exception {
+        // Arrange
+        when(savingGoalsService.addMoneyToSavingsGoal(any(), any(), anyInt())).thenReturn("Mocked Saving Goals");
+
+        // Act
+        String response = app.addSavings("MockAccountId", 99, "MockToken");
+
+        // Assert
+        assertEquals("Mocked Saving Goals", response);
+    }
+
+    @Test
+    void testGetSavingGoalsThrows() throws Exception {
+        // Arrange
+        when(savingGoalsService.addMoneyToSavingsGoal(any(), any(), anyInt()))
+                .thenThrow(new RuntimeException("Mocked Error"));
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            // Act
+            app.addSavings("MockAccountId", 99, "MockToken");
         });
 
         // Assert
