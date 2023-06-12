@@ -40,7 +40,7 @@ public class SavingGoalsServiceTest {
     void testAddMoneyToSavingsGoal() {
         // Arrange
         when(repo.getSavingGoalsList(accountId, bearerToken))
-                .thenReturn("{\"savingsGoalList\": [{\"name\": \"RoundUp1\", \"savingsGoalUid\": \"" + savingsGoalId
+                .thenReturn("{\"savingsGoalList\": [{\"name\": \"RoundUpSavingsGoal\", \"savingsGoalUid\": \"" + savingsGoalId
                         + "\"}]}");
         when(repo.addMoneyToSavingsGoal(accountId, savingsGoalId, amount, bearerToken))
                 .thenReturn("{\"transferUid\":\"transferId\",\"success\": \"true\"}");
@@ -56,7 +56,7 @@ public class SavingGoalsServiceTest {
     void testAddMoneyToSavingsGoalFailure() {
         // Arrange
         when(repo.getSavingGoalsList(accountId, bearerToken))
-                .thenReturn("{\"savingsGoalList\": [{\"name\": \"RoundUp1\", \"savingsGoalUid\": \"" + savingsGoalId
+                .thenReturn("{\"savingsGoalList\": [{\"name\": \"RoundUpSavingsGoal\", \"savingsGoalUid\": \"" + savingsGoalId
                         + "\"}]}");
         when(repo.addMoneyToSavingsGoal(accountId, savingsGoalId, amount, bearerToken))
                 .thenReturn("{\"success\": \"false\"}");

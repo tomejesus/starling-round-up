@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.starling.Constants;
 import com.starling.models.AddToSavingsGoalResponse;
 import com.starling.models.CreateSavingsGoalResponse;
 import com.starling.models.SavingsGoal;
@@ -61,7 +62,8 @@ public class SavingGoalsService {
         SavingsGoalList savingsGoals = this.getSavingsGoalsList(accountId, bearerToken);
 
         for (SavingsGoal savingsGoal : savingsGoals.savingsGoalList) {
-            if ("RoundUp1".equals(savingsGoal.name)) {
+            if (Constants.SAVING_GOAL_NAME.equals(savingsGoal.name)) {
+                this.logger.info("Round up goal found.");
                 return savingsGoal.savingsGoalUid;
             }
         }

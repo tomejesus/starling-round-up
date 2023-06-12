@@ -35,4 +35,6 @@ public class Constants {
 
     public static final String DATE_FORMAT = "%sT00:00:00.000Z";
 
+    public static final String SAVING_GOAL_NAME = "RoundUpSavingsGoal";
+
 }
