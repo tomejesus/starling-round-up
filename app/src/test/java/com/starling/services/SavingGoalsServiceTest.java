@@ -2,11 +2,13 @@ package com.starling.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starling.repos.SavingGoalsRepo;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -44,10 +46,10 @@ public class SavingGoalsServiceTest {
                 .thenReturn("{\"transferUid\":\"transferId\",\"success\": \"true\"}");
 
         // Act
-        String response = savingGoalsService.addMoneyToSavingsGoal(accountId, bearerToken, amount);
+        Assertions.assertDoesNotThrow(() -> savingGoalsService.addMoneyToSavingsGoal(accountId, bearerToken, amount));
 
         // Assert
-        assertEquals("GBP 10.00 added to savings goal.", response);
+        verify(repo).addMoneyToSavingsGoal(accountId, savingsGoalId, amount, bearerToken);
     }
 
     @Test
@@ -60,10 +62,10 @@ public class SavingGoalsServiceTest {
                 .thenReturn("{\"success\": \"false\"}");
 
         // Act
-        String response = savingGoalsService.addMoneyToSavingsGoal(accountId, bearerToken, amount);
+        Exception exception = assertThrows(RuntimeException.class, () -> savingGoalsService.addMoneyToSavingsGoal(accountId, bearerToken, amount));
 
         // Assert
-        assertEquals("Unable to add money to savings goal.", response);
+        assertEquals("Unable to add money to savings goal.", exception.getMessage());
     }
 
     @Test

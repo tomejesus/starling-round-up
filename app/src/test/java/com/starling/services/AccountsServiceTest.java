@@ -47,8 +47,7 @@ public class AccountsServiceTest {
         // Arrange
         when(accountsRepo.getAccounts("MockToken")).thenReturn("{\"accounts\":[{\"accountUid\":\"MockAccountId\"}]}");
 
-        // Act            
-        // Assert
+        // Act and Assert
         assertThrows(RuntimeException.class, () -> accountsService.getPrimaryAccountId("MockToken"));
     }
 
@@ -57,8 +56,7 @@ public class AccountsServiceTest {
         // Arrange
         when(accountsRepo.getAccounts("MockToken")).thenReturn("{\"accounts\":[]}");
 
-        // Act            
-        // Assert
+        // Act and Assert
         assertThrows(RuntimeException.class, () -> accountsService.getPrimaryAccountId("MockToken"));
     }
 
@@ -67,8 +65,7 @@ public class AccountsServiceTest {
         // Arrange
         when(accountsRepo.getAccounts("MockToken")).thenThrow(new RuntimeException("Mocked Error", null));
 
-        // Act            
-        // Assert
+        // Act and Assert
         assertThrows(RuntimeException.class, () -> accountsService.getPrimaryAccountId("MockToken"));
     }
 }

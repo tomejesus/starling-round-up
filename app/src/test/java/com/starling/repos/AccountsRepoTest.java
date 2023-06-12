@@ -51,7 +51,7 @@ public class AccountsRepoTest {
         // Arrange
         when(mockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenThrow(IOException.class);
 
-        // Assert
+        // Act and Assert
         assertThrows(RuntimeException.class, () -> repo.getAccounts("bearerToken"));
     }
 
@@ -61,7 +61,7 @@ public class AccountsRepoTest {
         when(mockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(mockResponse);
         when(mockResponse.statusCode()).thenReturn(500);
 
-        // Assert
+        // Act and Assert
         assertThrows(RuntimeException.class, () -> repo.getAccounts("bearerToken"));
     }
 }

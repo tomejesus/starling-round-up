@@ -48,8 +48,7 @@ public class FeedServiceTest {
         // Arrange
         when(feedRepo.getFeedItems("MockAccountId", "MockDate", "MockToken")).thenReturn(null);
 
-        // Act
-        // Assert
+        // Act and Assert
         assertThrows(RuntimeException.class, () -> feedService.getFeedItems("MockAccountId", "MockDate", "MockToken"));
     }
 
@@ -58,8 +57,7 @@ public class FeedServiceTest {
         // Arrange
         when(feedRepo.getFeedItems("MockAccountId", "MockDate", "MockToken")).thenThrow(new RuntimeException("Mocked repo error"));
 
-        // Act
-        // Assert
+        // Act and Assert
         assertThrows(RuntimeException.class, () -> feedService.getFeedItems("MockAccountId", "MockDate", "MockToken"));
     }
 
@@ -68,8 +66,7 @@ public class FeedServiceTest {
         // Arrange
         when(feedRepo.getFeedItems("MockAccountId", "MockDate", "MockToken")).thenReturn("Not valid JSON");
 
-        // Act
-        // Assert
+        // Act and Assert
         assertThrows(RuntimeException.class, () -> feedService.getFeedItems("MockAccountId", "MockDate", "MockToken"));
     }
 }

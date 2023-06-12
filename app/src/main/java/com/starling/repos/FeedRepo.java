@@ -58,8 +58,8 @@ public class FeedRepo {
         LocalDate weekStart = LocalDate.parse(startDate);
         LocalDate weekEnd = weekStart.plusDays(7);
 
-        String weekStartRequestString = weekStart.toString() + "T00:00:00.000Z";
-        String weekEndRequestString = weekEnd.toString() + "T00:00:00.000Z";
+        String weekStartRequestString = String.format(Constants.DATE_FORMAT, weekStart.toString());
+        String weekEndRequestString = String.format(Constants.DATE_FORMAT, weekEnd.toString());
 
         Week week = new Week(weekStartRequestString, weekEndRequestString);
         return week;

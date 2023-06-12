@@ -62,8 +62,7 @@ public class FeedRepoTest {
         when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
                 .thenThrow(new RuntimeException());
 
-        // Act
-        // Assert
+        // Act and Assert
         assertThrows(RuntimeException.class, () -> feedRepo.getFeedItems(accountId, startDate, token));
     }
 
@@ -74,8 +73,7 @@ public class FeedRepoTest {
         String startDate = "InvalidDate";
         String token = "MockToken";
 
-        // Act
-        // Assert
+        // Act and Assert
         assertThrows(IllegalArgumentException.class, () -> feedRepo.getFeedItems(accountId, startDate, token));
     }
 }

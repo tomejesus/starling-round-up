@@ -37,6 +37,7 @@ public class AccountsService {
 
         for (Account account : allAccounts) {
             if ("PRIMARY".equals(account.accountType)) {
+                this.logger.info("Primary account found: {}", account.accountUid);
                 return account.accountUid;
             }
         }

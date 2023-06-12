@@ -21,10 +21,10 @@ public class SavingGoalsService {
         this.logger = logger;
     }
 
-    public String addMoneyToSavingsGoal(String accountId, String bearerToken, int amount) {
+    public void addMoneyToSavingsGoal(String accountId, String bearerToken, int amount) {
         String savingsGoalId;
         try {
-            savingsGoalId = this.getRoundUpGoalId(accountId, bearerToken);
+            savingsGoalId = this.getSavingsGoalId(accountId, bearerToken);
         } catch (Exception e) {
             this.logger.error("Failed to get savings goal ID", e);
             throw new RuntimeException("Failed to get savings goal ID", e);
@@ -48,16 +48,16 @@ public class SavingGoalsService {
         }
 
         if ("true".equals(addMoneyResponse.success)) {
-            this.logger.info("Successfully added money to savings goal.");
             String amountInDecimal = String.format("%.2f", (double) amount / 100);
-            return "GBP " + amountInDecimal + " added to savings goal.";
+            this.logger.info("GBP " + amountInDecimal + " added to savings goal.");
+            return;
+        } else {
+            this.logger.error("Unable to add money to savings goal.", response);
+            throw new RuntimeException("Unable to add money to savings goal.");
         }
-
-        this.logger.error("Unable to add money to savings goal.");
-        return "Unable to add money to savings goal.";
     }
 
-    private String getRoundUpGoalId(String accountId, String bearerToken) {
+    private String getSavingsGoalId(String accountId, String bearerToken) {
         SavingsGoalList savingsGoals = this.getSavingsGoalsList(accountId, bearerToken);
 
         for (SavingsGoal savingsGoal : savingsGoals.savingsGoalList) {

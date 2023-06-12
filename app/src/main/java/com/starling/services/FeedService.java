@@ -25,6 +25,7 @@ public class FeedService {
                 this.logger.error("No feed items returned for account: {}", accountId);
                 throw new RuntimeException("No feed items returned for account: " + accountId);
             }
+            this.logger.info("Successfully retrieved feed items for account: {}", accountId);
         } catch (Exception exception) {
             String errorMsg = String.format("An error occurred when retrieving feed items for account: %s", accountId);
             this.logger.error(errorMsg, exception);

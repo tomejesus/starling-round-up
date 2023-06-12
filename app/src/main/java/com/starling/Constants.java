@@ -30,4 +30,9 @@ public class Constants {
             + "\"minorUnits\": %s"
             + "}"
             + "}";
+
+    public static final String OUTGOING_TRANSACTION = "OUT";
+
+    public static final String DATE_FORMAT = "%sT00:00:00.000Z";
+
 }
