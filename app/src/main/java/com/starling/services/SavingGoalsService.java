@@ -9,14 +9,14 @@ import com.starling.models.AddToSavingsGoalResponse;
 import com.starling.models.CreateSavingsGoalResponse;
 import com.starling.models.SavingsGoal;
 import com.starling.models.SavingsGoalList;
-import com.starling.repos.SavingGoalsRepo;
+import com.starling.repos.ISavingGoalsRepo;
 
-public class SavingGoalsService {
-    private SavingGoalsRepo repo;
+public class SavingGoalsService implements ISavingGoalsService {
+    private ISavingGoalsRepo repo;
     private Logger logger;
     private ObjectMapper objectMapper;
 
-    public SavingGoalsService(SavingGoalsRepo repo, ObjectMapper objectMapper, Logger logger) {
+    public SavingGoalsService(ISavingGoalsRepo repo, ObjectMapper objectMapper, Logger logger) {
         this.repo = repo;
         this.objectMapper = objectMapper;
         this.logger = logger;

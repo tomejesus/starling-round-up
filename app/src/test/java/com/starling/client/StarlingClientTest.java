@@ -3,10 +3,9 @@ package com.starling.client;
 import com.starling.models.FeedAmount;
 import com.starling.models.FeedItem;
 import com.starling.models.FeedItems;
-import com.starling.services.AccountsService;
-import com.starling.services.FeedService;
-import com.starling.services.SavingGoalsService;
-
+import com.starling.services.IAccountsService;
+import com.starling.services.IFeedService;
+import com.starling.services.ISavingGoalsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -15,7 +14,6 @@ import org.mockito.MockitoAnnotations;
 import java.net.http.HttpClient;
 
 import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 
 class StarlingClientTest {
@@ -26,13 +24,13 @@ class StarlingClientTest {
     private HttpClient httpClient;
 
     @Mock
-    private AccountsService accountsService;
+    private IAccountsService accountsService;
 
     @Mock
-    private FeedService feedService;
+    private IFeedService feedService;
 
     @Mock
-    private SavingGoalsService savingGoalsService;
+    private ISavingGoalsService savingGoalsService;
 
     @BeforeEach
     void setUp() {

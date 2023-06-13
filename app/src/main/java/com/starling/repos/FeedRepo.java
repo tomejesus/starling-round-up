@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import com.starling.Constants;
 import com.starling.models.Week;
 
-public class FeedRepo {
+public class FeedRepo implements IFeedRepo {
     private HttpClient client;
     private Logger logger;
 

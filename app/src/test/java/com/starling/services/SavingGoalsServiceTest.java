@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.starling.repos.SavingGoalsRepo;
+import com.starling.repos.ISavingGoalsRepo;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 
 public class SavingGoalsServiceTest {
 
-    private SavingGoalsService savingGoalsService;
+    private ISavingGoalsService savingGoalsService;
     private ObjectMapper objectMapper = new ObjectMapper();
     private String accountId = "testAccountId";
     private String bearerToken = "testToken";
@@ -25,7 +25,7 @@ public class SavingGoalsServiceTest {
     private String savingsGoalId = "testGoalId";
 
     @Mock
-    private SavingGoalsRepo repo;
+    private ISavingGoalsRepo repo;
 
     @Mock
     private Logger logger;

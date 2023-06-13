@@ -8,18 +8,18 @@ import org.slf4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starling.models.FeedItems;
-import com.starling.repos.FeedRepo;
+import com.starling.repos.IFeedRepo;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 public class FeedServiceTest {
 
-    private FeedService feedService;
+    private IFeedService feedService;
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
-    private FeedRepo feedRepo;
+    private IFeedRepo feedRepo;
 
     @Mock
     private Logger logger;

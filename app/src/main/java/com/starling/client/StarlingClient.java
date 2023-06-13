@@ -8,12 +8,13 @@ import org.slf4j.LoggerFactory;
 import java.net.http.HttpClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class StarlingClient {
+public class StarlingClient implements IStarlingClient {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(StarlingClient.class);
-    private AccountsService accountsService;
-    private FeedService feedService;
-    private SavingGoalsService savingGoalsService;
+
+    private IAccountsService accountsService;
+    private IFeedService feedService;
+    private ISavingGoalsService savingGoalsService;
 
     public StarlingClient(HttpClient httpClient) {
         AccountsRepo accountsRepo = new AccountsRepo(httpClient, LOGGER);
@@ -26,8 +27,8 @@ public class StarlingClient {
         this.savingGoalsService = new SavingGoalsService(savingsGoalsRepo, OBJECT_MAPPER, LOGGER);
     }
 
-    public StarlingClient(AccountsService accountsService, FeedService feedService,
-            SavingGoalsService savingGoalsService) {
+    public StarlingClient(IAccountsService accountsService, IFeedService feedService,
+            ISavingGoalsService savingGoalsService) {
         this.accountsService = accountsService;
         this.feedService = feedService;
         this.savingGoalsService = savingGoalsService;

@@ -5,16 +5,16 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starling.models.Account;
 import com.starling.models.Accounts;
-import com.starling.repos.AccountsRepo;
+import com.starling.repos.IAccountsRepo;
 
 import org.slf4j.Logger;
 
-public class AccountsService {
-    private AccountsRepo repo;
+public class AccountsService implements IAccountsService {
+    private IAccountsRepo repo;
     private ObjectMapper objectMapper;
     private Logger logger;
 
-    public AccountsService(AccountsRepo repo, ObjectMapper objectMapper, Logger logger) {
+    public AccountsService(IAccountsRepo repo, ObjectMapper objectMapper, Logger logger) {
         this.repo = repo;
         this.objectMapper = objectMapper;
         this.logger = logger;
@@ -37,7 +37,6 @@ public class AccountsService {
 
         for (Account account : allAccounts) {
             if ("PRIMARY".equals(account.accountType)) {
-                this.logger.info("Primary account found: {}", account.accountUid);
                 return account.accountUid;
             }
         }

@@ -7,7 +7,7 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.starling.repos.AccountsRepo;
+import com.starling.repos.IAccountsRepo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -15,11 +15,11 @@ import static org.mockito.Mockito.when;
 
 public class AccountsServiceTest {
 
-    private AccountsService accountsService;
+    private IAccountsService accountsService;
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
-    private AccountsRepo accountsRepo;
+    private IAccountsRepo accountsRepo;
 
     @Mock
     private Logger logger;

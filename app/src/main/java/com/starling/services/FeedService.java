@@ -4,14 +4,14 @@ import org.slf4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starling.models.FeedItems;
-import com.starling.repos.FeedRepo;
+import com.starling.repos.IFeedRepo;
 
-public class FeedService {
-    private FeedRepo repo;
+public class FeedService implements IFeedService {
+    private IFeedRepo repo;
     private ObjectMapper objectMapper;
     private Logger logger;
 
-    public FeedService(FeedRepo repo, ObjectMapper objectMapper, Logger logger) {
+    public FeedService(IFeedRepo repo, ObjectMapper objectMapper, Logger logger) {
         this.repo = repo;
         this.objectMapper = objectMapper;
         this.logger = logger;

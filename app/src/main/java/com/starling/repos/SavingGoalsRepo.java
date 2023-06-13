@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 
 import com.starling.Constants;
 
-public class SavingGoalsRepo {
+public class SavingGoalsRepo implements ISavingGoalsRepo {
     private HttpClient client;
     private Logger logger;
 
