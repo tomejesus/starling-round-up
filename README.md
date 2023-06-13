@@ -37,7 +37,7 @@ This will compile the source code, run the tests and create a runnable jar file 
 
 After the application is built, you can run the application using the following command:
 ```sh
-./gradlew run --args='{week start date in YYYY-MM-DD format} {Access Token}
+./gradlew run --args='{week start date in YYYY-MM-DD format} {Access Token}'
 ```
 
 ## Testing
