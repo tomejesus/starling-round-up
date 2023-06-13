@@ -6,9 +6,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import com.starling.client.IHttpClientWrapper;
+
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -20,7 +19,7 @@ public class FeedRepoTest {
     private FeedRepo feedRepo;
 
     @Mock
-    private HttpClient httpClient;
+    private IHttpClientWrapper httpClientWrapper;
 
     @Mock
     private Logger logger;
@@ -28,7 +27,7 @@ public class FeedRepoTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        feedRepo = new FeedRepo(httpClient, logger);
+        feedRepo = new FeedRepo(httpClientWrapper, logger);
     }
 
     @Test
@@ -36,34 +35,28 @@ public class FeedRepoTest {
         // Arrange
         String accountId = "MockAccountId";
         String startDate = LocalDate.now().toString();
-        String token = "MockToken";
 
-        HttpResponse<String> mockResponse = mock(HttpResponse.class);
-        when(mockResponse.statusCode()).thenReturn(200);
-        when(mockResponse.body())
+        when(httpClientWrapper.get(anyString()))
                 .thenReturn("{\"feedItems\":[{\"amount\":{\"currency\":\"GBP\",\"minorUnits\":1234}}]}");
 
-        when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(mockResponse);
-
         // Act
-        String response = feedRepo.getFeedItems(accountId, startDate, token);
+        String response = feedRepo.getFeedItems(accountId, startDate);
 
         // Assert
         assertEquals("{\"feedItems\":[{\"amount\":{\"currency\":\"GBP\",\"minorUnits\":1234}}]}", response);
     }
 
     @Test
-    void testGetFeedItemsError() throws Exception {
+    void testGetFeedItemsError() {
         // Arrange
         String accountId = "MockAccountId";
         String startDate = LocalDate.now().toString();
-        String token = "MockToken";
 
-        when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+        when(httpClientWrapper.get(anyString()))
                 .thenThrow(new RuntimeException());
 
         // Act and Assert
-        assertThrows(RuntimeException.class, () -> feedRepo.getFeedItems(accountId, startDate, token));
+        assertThrows(RuntimeException.class, () -> feedRepo.getFeedItems(accountId, startDate));
     }
 
     @Test
@@ -71,9 +64,8 @@ public class FeedRepoTest {
         // Arrange
         String accountId = "MockAccountId";
         String startDate = "InvalidDate";
-        String token = "MockToken";
 
         // Act and Assert
-        assertThrows(IllegalArgumentException.class, () -> feedRepo.getFeedItems(accountId, startDate, token));
+        assertThrows(IllegalArgumentException.class, () -> feedRepo.getFeedItems(accountId, startDate));
     }
 }

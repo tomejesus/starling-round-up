@@ -25,13 +25,11 @@ class AppTest {
     void runAppWithCorrectArgs() {
         // Arrange
         String weekStart = "2023-01-01";
-        String bearerToken = "bearer";
-        String[] args = new String[] { weekStart, bearerToken };
 
         // Act
-        app.run(args);
+        app.run(weekStart);
 
         // Assert
-        verify(starlingClient).processSavings(weekStart, bearerToken);
+        verify(starlingClient).processSavings(weekStart);
     }
 }

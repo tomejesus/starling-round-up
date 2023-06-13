@@ -20,11 +20,11 @@ public class AccountsService implements IAccountsService {
         this.logger = logger;
     }
 
-    public String getPrimaryAccountId(String bearerToken) {
+    public String getPrimaryAccountId() {
         Account[] allAccounts;
 
         try {
-            allAccounts = this.getAccounts(bearerToken).accounts;
+            allAccounts = this.getAccounts().accounts;
         } catch (Exception exception) {
             this.logger.error("An error occurred getting accounts: ", exception);
             throw new RuntimeException("An error occurred accounts: ", exception);
@@ -45,11 +45,11 @@ public class AccountsService implements IAccountsService {
         throw new RuntimeException("Primary account not found");
     }
 
-    private Accounts getAccounts(String bearerToken) {
+    private Accounts getAccounts() {
         String rawAccounts = null;
         try {
-            rawAccounts = this.repo.getAccounts(bearerToken);
-        } catch (IOException | InterruptedException e) {
+            rawAccounts = this.repo.getAccounts();
+        } catch (Exception e) {
             this.logger.error("An error occurred when calling repo.getAccounts: ", e);
             throw new RuntimeException("An error occurred when calling repo.getAccounts: ", e);
         }

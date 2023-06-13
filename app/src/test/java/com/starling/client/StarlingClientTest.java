@@ -43,19 +43,18 @@ class StarlingClientTest {
         // Arrange
         String accountId = "acc123";
         String weekStart = "2023-01-01";
-        String bearerToken = "bearer";
         int savings = 77;
 
         // Act
-        when(accountsService.getPrimaryAccountId(bearerToken)).thenReturn(accountId);
-        when(feedService.getFeedItems(accountId, weekStart, bearerToken)).thenReturn(createMockedFeedItems());
+        when(accountsService.getPrimaryAccountId()).thenReturn(accountId);
+        when(feedService.getFeedItems(accountId, weekStart)).thenReturn(createMockedFeedItems());
 
-        client.processSavings(weekStart, bearerToken);
+        client.processSavings(weekStart);
 
         // Assert
-        verify(accountsService).getPrimaryAccountId(bearerToken);
-        verify(feedService).getFeedItems(accountId, weekStart, bearerToken);
-        verify(savingGoalsService).addMoneyToSavingsGoal(accountId, bearerToken, savings);
+        verify(accountsService).getPrimaryAccountId();
+        verify(feedService).getFeedItems(accountId, weekStart);
+        verify(savingGoalsService).addMoneyToSavingsGoal(accountId, savings);
     }
 
     private FeedItems createMockedFeedItems() {

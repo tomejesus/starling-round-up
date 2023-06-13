@@ -9,38 +9,31 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.io.IOException;
+import com.starling.client.IHttpClientWrapper;
 
 import org.slf4j.Logger;
 
 public class AccountsRepoTest {
     @Mock
-    private HttpClient mockClient;
+    private IHttpClientWrapper mockHttpClientWrapper;
     @Mock
     private Logger mockLogger;
-    @Mock
-    private HttpResponse<String> mockResponse;
 
     private AccountsRepo repo;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        repo = new AccountsRepo(mockClient, mockLogger);
+        repo = new AccountsRepo(mockHttpClientWrapper, mockLogger);
     }
 
     @Test
     public void testGetAccounts() throws Exception {
         // Arrange
-        when(mockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(mockResponse);
-        when(mockResponse.statusCode()).thenReturn(200);
-        when(mockResponse.body()).thenReturn("response body");
+        when(mockHttpClientWrapper.get(anyString())).thenReturn("response body");
 
         // Act
-        String result = repo.getAccounts("bearerToken");
+        String result = repo.getAccounts();
 
         // Assert
         assertEquals("response body", result);
@@ -49,19 +42,9 @@ public class AccountsRepoTest {
     @Test
     public void testGetAccountsExceptionWhenError() throws Exception {
         // Arrange
-        when(mockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenThrow(IOException.class);
+        when(mockHttpClientWrapper.get(anyString())).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(RuntimeException.class, () -> repo.getAccounts("bearerToken"));
-    }
-
-    @Test
-    public void testGetAccountsExceptionWhenNot200() throws Exception {
-        // Arrange
-        when(mockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(mockResponse);
-        when(mockResponse.statusCode()).thenReturn(500);
-
-        // Act and Assert
-        assertThrows(RuntimeException.class, () -> repo.getAccounts("bearerToken"));
+        assertThrows(RuntimeException.class, () -> repo.getAccounts());
     }
 }

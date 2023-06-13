@@ -5,7 +5,6 @@ import com.starling.repos.*;
 import com.starling.services.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.net.http.HttpClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class StarlingClient implements IStarlingClient {
@@ -16,14 +15,14 @@ public class StarlingClient implements IStarlingClient {
     private IFeedService feedService;
     private ISavingGoalsService savingGoalsService;
 
-    public StarlingClient(HttpClient httpClient) {
-        AccountsRepo accountsRepo = new AccountsRepo(httpClient, LOGGER);
+    public StarlingClient(IHttpClientWrapper httpClientWrapper) {
+        AccountsRepo accountsRepo = new AccountsRepo(httpClientWrapper, LOGGER);
         this.accountsService = new AccountsService(accountsRepo, OBJECT_MAPPER, LOGGER);
 
-        FeedRepo feedRepo = new FeedRepo(httpClient, LOGGER);
+        FeedRepo feedRepo = new FeedRepo(httpClientWrapper, LOGGER);
         this.feedService = new FeedService(feedRepo, OBJECT_MAPPER, LOGGER);
 
-        SavingGoalsRepo savingsGoalsRepo = new SavingGoalsRepo(httpClient, LOGGER);
+        SavingGoalsRepo savingsGoalsRepo = new SavingGoalsRepo(httpClientWrapper, LOGGER);
         this.savingGoalsService = new SavingGoalsService(savingsGoalsRepo, OBJECT_MAPPER, LOGGER);
     }
 
@@ -34,12 +33,12 @@ public class StarlingClient implements IStarlingClient {
         this.savingGoalsService = savingGoalsService;
     }
 
-    public void processSavings(String weekStart, String bearerToken) {
+    public void processSavings(String weekStart) {
         try {
-            String accountId = this.accountsService.getPrimaryAccountId(bearerToken);
-            FeedItems feedItems = this.feedService.getFeedItems(accountId, weekStart, bearerToken);
+            String accountId = this.accountsService.getPrimaryAccountId();
+            FeedItems feedItems = this.feedService.getFeedItems(accountId, weekStart);
             int savings = RoundUpService.calculateRoundUp(feedItems);
-            this.savingGoalsService.addMoneyToSavingsGoal(accountId, bearerToken, savings);
+            this.savingGoalsService.addMoneyToSavingsGoal(accountId, savings);
         } catch (Exception e) {
             LOGGER.error("An error occurred while processing savings: ", e);
             throw e;

@@ -20,7 +20,6 @@ public class SavingGoalsServiceTest {
     private ISavingGoalsService savingGoalsService;
     private ObjectMapper objectMapper = new ObjectMapper();
     private String accountId = "testAccountId";
-    private String bearerToken = "testToken";
     private int amount = 1000;
     private String savingsGoalId = "testGoalId";
 
@@ -39,30 +38,30 @@ public class SavingGoalsServiceTest {
     @Test
     void testAddMoneyToSavingsGoal() {
         // Arrange
-        when(repo.getSavingGoalsList(accountId, bearerToken))
+        when(repo.getSavingGoalsList(accountId))
                 .thenReturn("{\"savingsGoalList\": [{\"name\": \"RoundUpSavingsGoal\", \"savingsGoalUid\": \"" + savingsGoalId
                         + "\"}]}");
-        when(repo.addMoneyToSavingsGoal(accountId, savingsGoalId, amount, bearerToken))
+        when(repo.addMoneyToSavingsGoal(accountId, savingsGoalId, amount))
                 .thenReturn("{\"transferUid\":\"transferId\",\"success\": \"true\"}");
 
         // Act
-        Assertions.assertDoesNotThrow(() -> savingGoalsService.addMoneyToSavingsGoal(accountId, bearerToken, amount));
+        Assertions.assertDoesNotThrow(() -> savingGoalsService.addMoneyToSavingsGoal(accountId, amount));
 
         // Assert
-        verify(repo).addMoneyToSavingsGoal(accountId, savingsGoalId, amount, bearerToken);
+        verify(repo).addMoneyToSavingsGoal(accountId, savingsGoalId, amount);
     }
 
     @Test
     void testAddMoneyToSavingsGoalFailure() {
         // Arrange
-        when(repo.getSavingGoalsList(accountId, bearerToken))
+        when(repo.getSavingGoalsList(accountId))
                 .thenReturn("{\"savingsGoalList\": [{\"name\": \"RoundUpSavingsGoal\", \"savingsGoalUid\": \"" + savingsGoalId
                         + "\"}]}");
-        when(repo.addMoneyToSavingsGoal(accountId, savingsGoalId, amount, bearerToken))
+        when(repo.addMoneyToSavingsGoal(accountId, savingsGoalId, amount))
                 .thenReturn("{\"success\": \"false\"}");
 
         // Act
-        Exception exception = assertThrows(RuntimeException.class, () -> savingGoalsService.addMoneyToSavingsGoal(accountId, bearerToken, amount));
+        Exception exception = assertThrows(RuntimeException.class, () -> savingGoalsService.addMoneyToSavingsGoal(accountId, amount));
 
         // Assert
         assertEquals("Unable to add money to savings goal.", exception.getMessage());
@@ -72,12 +71,12 @@ public class SavingGoalsServiceTest {
     void testAddMoneyToSavingsGoalException() {
         // Arrange
         String expectedMessage = "Failed to get savings goal ID";
-        when(repo.getSavingGoalsList(accountId, bearerToken))
+        when(repo.getSavingGoalsList(accountId))
                 .thenThrow(new RuntimeException("An error occurred getting raw savings goal list"));
 
         // Act
         Exception exception = assertThrows(RuntimeException.class, () -> {
-            savingGoalsService.addMoneyToSavingsGoal(accountId, bearerToken, amount);
+            savingGoalsService.addMoneyToSavingsGoal(accountId, amount);
         });
         String actualMessage = exception.getMessage();
 

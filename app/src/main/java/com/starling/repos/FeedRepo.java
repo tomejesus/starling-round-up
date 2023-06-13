@@ -1,27 +1,25 @@
 package com.starling.repos;
 
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 import org.slf4j.Logger;
 
 import com.starling.Constants;
+import com.starling.client.IHttpClientWrapper;
 import com.starling.models.Week;
 
 public class FeedRepo implements IFeedRepo {
-    private HttpClient client;
+    private IHttpClientWrapper httpClientWrapper;
     private Logger logger;
 
-    public FeedRepo(HttpClient client, Logger logger) {
-        this.client = client;
+    public FeedRepo(IHttpClientWrapper httpClientWrapper, Logger logger) {
+        this.httpClientWrapper = httpClientWrapper;
         this.logger = logger;
     }
 
-    public String getFeedItems(String accountId, String weekStartInputString, String bearerToken) {
+    public String getFeedItems(String accountId, String weekStartInputString) {
         Week week;
         try {
             week = this.getWeekFromStartDate(weekStartInputString);
@@ -36,18 +34,9 @@ public class FeedRepo implements IFeedRepo {
                 week.start,
                 week.end);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(requestString))
-                .header("Authorization", "Bearer " + bearerToken)
-                .build();
-
         try {
-            HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
-                logger.error("Failed to retrieve feed items. HTTP status code: {}", response.statusCode());
-                throw new RuntimeException("Failed to retrieve feed items. HTTP status code: " + response.statusCode());
-            }
-            return response.body();
+            String response = httpClientWrapper.get(requestString);
+            return response;
         } catch (Exception exception) {
             logger.error("An error occurred getting raw feed items: ", exception);
             throw new RuntimeException("An error occurred getting raw feed items: ", exception);

@@ -22,10 +22,10 @@ public class SavingGoalsService implements ISavingGoalsService {
         this.logger = logger;
     }
 
-    public void addMoneyToSavingsGoal(String accountId, String bearerToken, int amount) {
+    public void addMoneyToSavingsGoal(String accountId, int amount) {
         String savingsGoalId;
         try {
-            savingsGoalId = this.getSavingsGoalId(accountId, bearerToken);
+            savingsGoalId = this.getSavingsGoalId(accountId);
         } catch (Exception e) {
             this.logger.error("Failed to get savings goal ID", e);
             throw new RuntimeException("Failed to get savings goal ID", e);
@@ -33,7 +33,7 @@ public class SavingGoalsService implements ISavingGoalsService {
 
         String response;
         try {
-            response = this.repo.addMoneyToSavingsGoal(accountId, savingsGoalId, amount, bearerToken);
+            response = this.repo.addMoneyToSavingsGoal(accountId, savingsGoalId, amount);
         } catch (Exception e) {
             this.logger.error("Failed to add money to savings goal", e);
             throw new RuntimeException("Failed to add money to savings goal", e);
@@ -58,8 +58,8 @@ public class SavingGoalsService implements ISavingGoalsService {
         }
     }
 
-    private String getSavingsGoalId(String accountId, String bearerToken) {
-        SavingsGoalList savingsGoals = this.getSavingsGoalsList(accountId, bearerToken);
+    private String getSavingsGoalId(String accountId) {
+        SavingsGoalList savingsGoals = this.getSavingsGoalsList(accountId);
 
         for (SavingsGoal savingsGoal : savingsGoals.savingsGoalList) {
             if (Constants.SAVING_GOAL_NAME.equals(savingsGoal.name)) {
@@ -69,7 +69,7 @@ public class SavingGoalsService implements ISavingGoalsService {
         }
 
         this.logger.info("Round up goal not found creating new goal.");
-        String savingsGoalResponse = this.repo.createSavingsGoal(accountId, bearerToken);
+        String savingsGoalResponse = this.repo.createSavingsGoal(accountId);
         try {
             return objectMapper.readValue(savingsGoalResponse, CreateSavingsGoalResponse.class).savingsGoalUid;
         } catch (JsonProcessingException e) {
@@ -79,10 +79,10 @@ public class SavingGoalsService implements ISavingGoalsService {
 
     }
 
-    private SavingsGoalList getSavingsGoalsList(String accountId, String bearerToken) {
+    private SavingsGoalList getSavingsGoalsList(String accountId) {
         String rawSavingsGoals;
         try {
-            rawSavingsGoals = this.repo.getSavingGoalsList(accountId, bearerToken);
+            rawSavingsGoals = this.repo.getSavingGoalsList(accountId);
         } catch (Exception e) {
             this.logger.error("Failed to get savings goals list", e);
             throw new RuntimeException("Failed to get savings goals list", e);

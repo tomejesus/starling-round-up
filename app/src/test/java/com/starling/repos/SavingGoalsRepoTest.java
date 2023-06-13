@@ -5,26 +5,21 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.io.IOException;
-import java.net.http.HttpClient;
-import java.net.http.HttpResponse;
-
 import org.slf4j.Logger;
+
+import com.starling.client.IHttpClientWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 public class SavingGoalsRepoTest {
 
     private SavingGoalsRepo savingGoalsRepo;
 
     @Mock
-    private HttpClient httpClient;
-
-    @Mock
-    private HttpResponse<Object> httpResponse;
+    private IHttpClientWrapper httpClientWrapper;
 
     @Mock
     private Logger logger;
@@ -32,20 +27,17 @@ public class SavingGoalsRepoTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        savingGoalsRepo = new SavingGoalsRepo(httpClient, logger);
+        savingGoalsRepo = new SavingGoalsRepo(httpClientWrapper, logger);
     }
 
     @Test
     void testAddMoneyToSavingsGoal() throws Exception {
         // Arrange
         String expectedResponse = "Mocked response";
-        when(httpClient.send(any(), any())).thenReturn(httpResponse);
-        when(httpResponse.body()).thenReturn(expectedResponse);
-        when(httpResponse.statusCode()).thenReturn(200);
+        when(httpClientWrapper.put(anyString(), anyString())).thenReturn(expectedResponse);
 
         // Act
-        String response = savingGoalsRepo.addMoneyToSavingsGoal("MockAccountId", "MockSavingsGoalId", 1000,
-                "MockToken");
+        String response = savingGoalsRepo.addMoneyToSavingsGoal("MockAccountId", "MockSavingsGoalId", 1000);
 
         // Assert
         assertEquals(expectedResponse, response);
@@ -54,22 +46,20 @@ public class SavingGoalsRepoTest {
     @Test
     void testAddMoneyToSavingsGoalThrowsException() throws Exception {
         // Arrange
-        when(httpClient.send(any(), any())).thenThrow(new IOException("Mocked error"));
+        when(httpClientWrapper.put(anyString(), anyString())).thenThrow(new RuntimeException("Mocked error"));
 
         // Act and Assert
-        assertThrows(RuntimeException.class, () -> savingGoalsRepo.addMoneyToSavingsGoal("MockAccountId", "MockSavingsGoalId", 1000, "MockToken"));
+        assertThrows(RuntimeException.class, () -> savingGoalsRepo.addMoneyToSavingsGoal("MockAccountId", "MockSavingsGoalId", 1000));
     }
 
     @Test
     void testGetSavingGoalsList() throws Exception {
         // Arrange
         String expectedResponse = "Mocked response";
-        when(httpClient.send(any(), any())).thenReturn(httpResponse);
-        when(httpResponse.body()).thenReturn(expectedResponse);
-        when(httpResponse.statusCode()).thenReturn(200);
+        when(httpClientWrapper.get(anyString())).thenReturn(expectedResponse);
 
         // Act
-        String response = savingGoalsRepo.getSavingGoalsList("MockAccountId", "MockToken");
+        String response = savingGoalsRepo.getSavingGoalsList("MockAccountId");
 
         // Assert
         assertEquals(expectedResponse, response);
@@ -78,22 +68,20 @@ public class SavingGoalsRepoTest {
     @Test
     void testGetSavingGoalsListThrowsException() throws Exception {
         // Arrange
-        when(httpClient.send(any(), any())).thenThrow(new IOException("Mocked error"));
+        when(httpClientWrapper.get(anyString())).thenThrow(new RuntimeException("Mocked error"));
 
         // Act and Assert
-        assertThrows(RuntimeException.class, () -> savingGoalsRepo.getSavingGoalsList("MockAccountId", "MockToken"));
+        assertThrows(RuntimeException.class, () -> savingGoalsRepo.getSavingGoalsList("MockAccountId"));
     }
 
     @Test
     void testCreateSavingsGoal() throws Exception {
         // Arrange
         String expectedResponse = "Mocked response";
-        when(httpClient.send(any(), any())).thenReturn(httpResponse);
-        when(httpResponse.body()).thenReturn(expectedResponse);
-        when(httpResponse.statusCode()).thenReturn(200);
+        when(httpClientWrapper.put(anyString(), anyString())).thenReturn(expectedResponse);
 
         // Act
-        String response = savingGoalsRepo.createSavingsGoal("MockAccountId", "MockToken");
+        String response = savingGoalsRepo.createSavingsGoal("MockAccountId");
 
         // Assert
         assertEquals(expectedResponse, response);
@@ -102,9 +90,9 @@ public class SavingGoalsRepoTest {
     @Test
     void testCreateSavingsGoalThrowsException() throws Exception {
         // Arrange
-        when(httpClient.send(any(), any())).thenThrow(new IOException("Mocked error"));
+        when(httpClientWrapper.put(anyString(), anyString())).thenThrow(new RuntimeException("Mocked error"));
 
         // Act and Assert
-        assertThrows(RuntimeException.class, () -> savingGoalsRepo.createSavingsGoal("MockAccountId", "MockToken"));
+        assertThrows(RuntimeException.class, () -> savingGoalsRepo.createSavingsGoal("MockAccountId"));
     }
 }

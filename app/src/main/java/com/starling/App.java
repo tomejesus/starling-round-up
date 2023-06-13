@@ -2,6 +2,7 @@ package com.starling;
 
 import java.net.http.HttpClient;
 
+import com.starling.client.HttpClientWrapper;
 import com.starling.client.StarlingClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +15,8 @@ public class App {
         this.starlingClient = starlingClient;
     }
 
-    public void run(String[] args) {
-        String weekStart = args[0];
-        String bearerToken = args[1];
-        starlingClient.processSavings(weekStart, bearerToken);
+    public void run(String weekStart) {
+        starlingClient.processSavings(weekStart);
     }
 
     public static void main(String[] args) {
@@ -28,7 +27,12 @@ public class App {
         }
 
         HttpClient httpClient = HttpClient.newHttpClient();
-        StarlingClient starlingClient = new StarlingClient(httpClient);
-        new App(starlingClient).run(args);
+
+        String weekStart = args[0];
+        String bearerToken = args[1];
+        HttpClientWrapper httpClientWrapper = new HttpClientWrapper(httpClient, bearerToken, LOGGER);
+        StarlingClient starlingClient = new StarlingClient(httpClientWrapper);
+
+        new App(starlingClient).run(weekStart);
     }
 }

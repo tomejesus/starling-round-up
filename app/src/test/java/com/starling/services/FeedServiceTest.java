@@ -34,10 +34,10 @@ public class FeedServiceTest {
     void testGetFeedItemsSuccess() throws Exception {
         // Arrange
         String mockFeedJson = "{\"feedItems\":[{\"feedItemUid\":\"MockFeedItem\"}]}";
-        when(feedRepo.getFeedItems("MockAccountId", "MockDate", "MockToken")).thenReturn(mockFeedJson);
+        when(feedRepo.getFeedItems("MockAccountId", "MockDate")).thenReturn(mockFeedJson);
 
         // Act
-        FeedItems feedItems = feedService.getFeedItems("MockAccountId", "MockDate", "MockToken");
+        FeedItems feedItems = feedService.getFeedItems("MockAccountId", "MockDate");
 
         // Assert
         assertEquals("MockFeedItem", feedItems.feedItems[0].feedItemUid);
@@ -46,27 +46,27 @@ public class FeedServiceTest {
     @Test
     void testGetFeedItemsNoFeedItems() {
         // Arrange
-        when(feedRepo.getFeedItems("MockAccountId", "MockDate", "MockToken")).thenReturn(null);
+        when(feedRepo.getFeedItems("MockAccountId", "MockDate")).thenReturn(null);
 
         // Act and Assert
-        assertThrows(RuntimeException.class, () -> feedService.getFeedItems("MockAccountId", "MockDate", "MockToken"));
+        assertThrows(RuntimeException.class, () -> feedService.getFeedItems("MockAccountId", "MockDate"));
     }
 
     @Test
     void testGetFeedItemsRepoError() {
         // Arrange
-        when(feedRepo.getFeedItems("MockAccountId", "MockDate", "MockToken")).thenThrow(new RuntimeException("Mocked repo error"));
+        when(feedRepo.getFeedItems("MockAccountId", "MockDate")).thenThrow(new RuntimeException("Mocked repo error"));
 
         // Act and Assert
-        assertThrows(RuntimeException.class, () -> feedService.getFeedItems("MockAccountId", "MockDate", "MockToken"));
+        assertThrows(RuntimeException.class, () -> feedService.getFeedItems("MockAccountId", "MockDate"));
     }
 
     @Test
     void testGetFeedItemsParseError() {
         // Arrange
-        when(feedRepo.getFeedItems("MockAccountId", "MockDate", "MockToken")).thenReturn("Not valid JSON");
+        when(feedRepo.getFeedItems("MockAccountId", "MockDate")).thenReturn("Not valid JSON");
 
         // Act and Assert
-        assertThrows(RuntimeException.class, () -> feedService.getFeedItems("MockAccountId", "MockDate", "MockToken"));
+        assertThrows(RuntimeException.class, () -> feedService.getFeedItems("MockAccountId", "MockDate"));
     }
 }

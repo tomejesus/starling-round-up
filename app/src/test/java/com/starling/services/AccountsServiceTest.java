@@ -33,10 +33,10 @@ public class AccountsServiceTest {
     @Test
     void testGetPrimaryAccountIdGetsId() throws Exception {
         // Arrange
-        when(accountsRepo.getAccounts("MockToken")).thenReturn(("{\"accounts\":[{\"accountUid\":\"MockAccountId\",\"accountType\":\"PRIMARY\"}]}"));
+        when(accountsRepo.getAccounts()).thenReturn(("{\"accounts\":[{\"accountUid\":\"MockAccountId\",\"accountType\":\"PRIMARY\"}]}"));
 
         // Act
-        String response = accountsService.getPrimaryAccountId("MockToken");
+        String response = accountsService.getPrimaryAccountId();
 
         // Assert
         assertEquals("MockAccountId", response);
@@ -45,27 +45,27 @@ public class AccountsServiceTest {
     @Test
     void testGetPrimaryAccountIdThrowsExceptionWhenNoPrimary() throws Exception {
         // Arrange
-        when(accountsRepo.getAccounts("MockToken")).thenReturn("{\"accounts\":[{\"accountUid\":\"MockAccountId\"}]}");
+        when(accountsRepo.getAccounts()).thenReturn("{\"accounts\":[{\"accountUid\":\"MockAccountId\"}]}");
 
         // Act and Assert
-        assertThrows(RuntimeException.class, () -> accountsService.getPrimaryAccountId("MockToken"));
+        assertThrows(RuntimeException.class, () -> accountsService.getPrimaryAccountId());
     }
 
     @Test
     void testGetPrimaryAccountIdThrowsExceptionWhenNoAccounts() throws Exception {
         // Arrange
-        when(accountsRepo.getAccounts("MockToken")).thenReturn("{\"accounts\":[]}");
+        when(accountsRepo.getAccounts()).thenReturn("{\"accounts\":[]}");
 
         // Act and Assert
-        assertThrows(RuntimeException.class, () -> accountsService.getPrimaryAccountId("MockToken"));
+        assertThrows(RuntimeException.class, () -> accountsService.getPrimaryAccountId());
     }
 
     @Test
     void testGetPrimaryAccountIdThrowsExceptionOnError() throws Exception {
         // Arrange
-        when(accountsRepo.getAccounts("MockToken")).thenThrow(new RuntimeException("Mocked Error", null));
+        when(accountsRepo.getAccounts()).thenThrow(new RuntimeException("Mocked Error", null));
 
         // Act and Assert
-        assertThrows(RuntimeException.class, () -> accountsService.getPrimaryAccountId("MockToken"));
+        assertThrows(RuntimeException.class, () -> accountsService.getPrimaryAccountId());
     }
 }

@@ -17,10 +17,10 @@ public class FeedService implements IFeedService {
         this.logger = logger;
     }
 
-    public FeedItems getFeedItems(String accountId, String weekEndInputString, String bearerToken) {
+    public FeedItems getFeedItems(String accountId, String weekEndInputString) {
         String rawFeedItems;
         try {
-            rawFeedItems = this.repo.getFeedItems(accountId, weekEndInputString, bearerToken);
+            rawFeedItems = this.repo.getFeedItems(accountId, weekEndInputString);
             if (rawFeedItems == null || rawFeedItems.isEmpty()) {
                 this.logger.error("No feed items returned for account: {}", accountId);
                 throw new RuntimeException("No feed items returned for account: " + accountId);
