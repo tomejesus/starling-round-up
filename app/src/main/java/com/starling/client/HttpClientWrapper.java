@@ -29,6 +29,7 @@ public class HttpClientWrapper implements IHttpClientWrapper {
             logger.info("Sending GET request to {}", url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             logger.info("Response status code: {}", response.statusCode());
+            checkStatusCode(response.statusCode());
             return response.body();
         } catch (Exception e) {
             logger.error("Failed to execute GET request", e);
@@ -48,10 +49,28 @@ public class HttpClientWrapper implements IHttpClientWrapper {
             logger.info("Sending PUT request to {}", url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             logger.info("Response status code: {}", response.statusCode());
+            checkStatusCode(response.statusCode());
             return response.body();
         } catch (Exception e) {
             logger.error("Failed to execute PUT request", e);
             throw new RuntimeException("Failed to execute PUT request", e);
+        }
+    }
+
+    private void checkStatusCode(int statusCode) {
+        if (statusCode >= 200 && statusCode < 300) {
+            // Successful status code, nothing to do
+        } else if (statusCode >= 300 && statusCode < 400) {
+            logger.warn("Redirection response. Status code: {}", statusCode);
+        } else if (statusCode >= 400 && statusCode < 500) {
+            logger.error("Client error response. Status code: {}", statusCode);
+            throw new RuntimeException("Client error. HTTP status code: " + statusCode);
+        } else if (statusCode >= 500) {
+            logger.error("Server error response. Status code: {}", statusCode);
+            throw new RuntimeException("Server error. HTTP status code: " + statusCode);
+        } else {
+            logger.error("Unexpected status code: {}", statusCode);
+            throw new RuntimeException("Unexpected HTTP status code: " + statusCode);
         }
     }
 }

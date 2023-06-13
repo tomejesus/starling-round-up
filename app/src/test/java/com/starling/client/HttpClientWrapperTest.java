@@ -1,5 +1,6 @@
 package com.starling.client;
 
+import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 
@@ -36,6 +37,7 @@ public class HttpClientWrapperTest {
     @Test
     public void testGet() throws Exception {
         when(httpClient.send(any(), any())).thenReturn(httpResponse);
+        when(httpResponse.statusCode()).thenReturn(200);
         when(httpResponse.body()).thenReturn("test response");
         
         String result = httpClientWrapper.get(url);
@@ -45,9 +47,21 @@ public class HttpClientWrapperTest {
     }
 
     @Test
-    public void testGetException() {
+    public void testGetClientError() throws IOException, InterruptedException {
+        when(httpClient.send(any(), any())).thenReturn(httpResponse);
+        when(httpResponse.statusCode()).thenReturn(400);
+
         Assertions.assertThrows(RuntimeException.class, () -> {
-            when(httpClient.send(any(), any())).thenThrow(new RuntimeException("Failed"));
+            httpClientWrapper.get(url);
+        });
+    }
+
+    @Test
+    public void testGetServerError() throws IOException, InterruptedException {
+        when(httpClient.send(any(), any())).thenReturn(httpResponse);
+        when(httpResponse.statusCode()).thenReturn(500);
+
+        Assertions.assertThrows(RuntimeException.class, () -> {
             httpClientWrapper.get(url);
         });
     }
@@ -57,6 +71,7 @@ public class HttpClientWrapperTest {
         String payload = "test payload";
 
         when(httpClient.send(any(), any())).thenReturn(httpResponse);
+        when(httpResponse.statusCode()).thenReturn(200);
         when(httpResponse.body()).thenReturn("test response");
 
         String result = httpClientWrapper.put(url, payload);
@@ -66,11 +81,25 @@ public class HttpClientWrapperTest {
     }
 
     @Test
-    public void testPutException() {
+    public void testPutClientError() throws IOException, InterruptedException {
         String payload = "test payload";
 
+        when(httpClient.send(any(), any())).thenReturn(httpResponse);
+        when(httpResponse.statusCode()).thenReturn(400);
+
         Assertions.assertThrows(RuntimeException.class, () -> {
-            when(httpClient.send(any(), any())).thenThrow(new RuntimeException("Failed"));
+            httpClientWrapper.put(url, payload);
+        });
+    }
+
+    @Test
+    public void testPutServerError() throws IOException, InterruptedException {
+        String payload = "test payload";
+
+        when(httpClient.send(any(), any())).thenReturn(httpResponse);
+        when(httpResponse.statusCode()).thenReturn(500);
+
+        Assertions.assertThrows(RuntimeException.class, () -> {
             httpClientWrapper.put(url, payload);
         });
     }
